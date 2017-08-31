@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">AGS</string>
+    <string name="members">Medlemmar</string>
+    <string name="attendance">Närvarorapportera</string>
+    <string name="clock">Rondklocka</string>
+    <string name="administer">Administrera</string>
+    <string name="schedule">Schema</string>
+    <string name="database">Databas</string>
+    <string name="log_out">Logga Ut</string>
+    <string name="title_activity_admin_login">Logga In</string>
+
+    <!-- Strings related to login -->
+    <string name="password">Lösenord</string>
+    <string name="sign_in">Logga in</string>
 </resources>

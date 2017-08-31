@@ -4,16 +4,16 @@
         <shape xmlns:android="http://schemas.android.com/apk/res/android"
             android:shape="rectangle">
             <solid android:color="@color/agsGreen" />
-            <padding android:bottom="@dimen/button_border"
-                android:top="@dimen/button_border"
-                android:left="@dimen/button_border"
-                android:right="@dimen/button_border" />
+            <padding android:bottom="@dimen/large_button_border"
+                android:top="@dimen/large_button_border"
+                android:left="@dimen/large_button_border"
+                android:right="@dimen/large_button_border" />
         </shape>
     </item>
     <item>
         <shape xmlns:android="http://schemas.android.com/apk/res/android">
             <solid android:color="@color/agsGreen" />
-            <stroke android:width="@dimen/button_border"
+            <stroke android:width="@dimen/large_button_border"
                 android:color="@color/agsYellow" />
         </shape>
     </item>

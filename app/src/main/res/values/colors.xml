@@ -2,5 +2,7 @@
 <resources>
     <color name="colorPrimary">#007749</color>
     <color name="colorPrimaryDark">#002222</color>
-    <color name="colorAccent">#FEDB00</color>
+    <color name="colorAccent">#1565c0</color>
+    <color name="agsGreen">#007749</color>
+    <color name="agsYellow">#FEDB00</color>
 </resources>

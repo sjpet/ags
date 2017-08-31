@@ -6,11 +6,35 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowActionBar">true</item>
+        <item name="actionBarStyle">@style/AppTheme.ActionBarStyle</item>
+    </style>
+
+    <style name="AppTheme.ActionBarStyle" parent="Widget.AppCompat.Light.ActionBar.Solid">
+        <item name="background">@drawable/bar_bg</item>
+        <item name="titleTextStyle">@style/AppTheme.TitleTextStyle</item>
+    </style>
+
+    <style name="AppTheme.TitleTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/agsYellow</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ButtonStyle" parent="@android:style/Widget.Button">
-        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textColor">@color/agsYellow</item>
+        <item name="android:textSize">@dimen/button_text_size</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:background">@drawable/button_bg</item>
+    </style>
+
+    <style name="LargeButtonStyle" parent="@android:style/Widget.Button">
+        <item name="android:textColor">@color/agsYellow</item>
+        <item name="android:textSize">@dimen/large_button_text_size</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:background">@drawable/large_button_bg</item>
     </style>
 
 </resources>

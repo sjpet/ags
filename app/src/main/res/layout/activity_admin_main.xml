@@ -1,9 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="se.agslulea.app.AdminMainActivity">
+    android:padding="@dimen/margin"
+    android:baselineAligned="false">
 
-</android.support.constraint.ConstraintLayout>
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/members_button"
+            style="@style/LargeButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/members"
+            tools:ignore="NestedWeights" />
+
+        <Button
+            android:id="@+id/clock_button"
+            style="@style/LargeButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/database" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/activity_button"
+            style="@style/LargeButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/schedule"
+            tools:ignore="NestedWeights" />
+
+        <Button
+            android:id="@+id/admin_button"
+            style="@style/LargeButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/log_out" />
+
+    </LinearLayout>
+
+</LinearLayout>
