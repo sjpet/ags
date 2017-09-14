@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/margin"
@@ -10,7 +10,7 @@
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_weight="1">
@@ -19,45 +19,45 @@
             android:id="@+id/members_button"
             style="@style/LargeButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
             android:text="@string/members"
             tools:ignore="NestedWeights" />
 
         <Button
-            android:id="@+id/clock_button"
-            style="@style/LargeButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="@dimen/margin"
-            android:text="@string/clock" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:layout_weight="1">
-
-        <Button
             android:id="@+id/activity_button"
             style="@style/LargeButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
             android:text="@string/attendance"
             tools:ignore="NestedWeights" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/clock_button"
+            style="@style/LargeButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/clock" />
+
         <Button
             android:id="@+id/admin_button"
             style="@style/LargeButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
             android:text="@string/administer" />

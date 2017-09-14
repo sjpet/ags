@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">AGS</string>
     <string name="members">Medlemmar</string>
     <string name="attendance">Närvarorapportera</string>
@@ -8,8 +9,50 @@
     <string name="database">Databas</string>
     <string name="log_out">Logga Ut</string>
     <string name="title_activity_admin_login">Logga In</string>
+    <string name="action_not_allowed">Behörighet saknas</string>
 
     <!-- Strings related to login -->
     <string name="password">Lösenord</string>
     <string name="sign_in">Logga in</string>
+    <string name="choose_password">Välj ett lösenord</string>
+    <string name="invalid_password">Ogiltigt lösenord</string>
+    <string name="empty_password">Lösenordsfältet är tomt</string>
+    <string name="updated_password_1">Nytt lösenord för superadministratör:</string>
+
+    <!-- Strings related to admin main -->
+    <string name="change_password">Byt lösenord</string>
+
+    <!-- Strings related to password change -->
+    <string name="choose">Välj</string>
+    <string name="change">Byt</string>
+    <string name="title_infix">lösenord för</string>
+    <string name="super_admin">superadministratör</string>
+    <string name="regular_admin">administratör</string>
+    <string name="super_admin_capitalized">Superadministratör</string>
+    <string name="regular_admin_capitalized">Administratör</string>
+    <string name="current_password">Nuvarande lösenord</string>
+    <string name="new_password">Nytt lösenord</string>
+    <string name="repeat_password">Upprepa lösenord</string>
+    <string name="current_password_mismatch">Nuvarande lösenord felaktigt</string>
+    <string name="new_password_mismatch">Nytt lösenord upprepades inte korrekt</string>
+    <string name="password_changed">Lösenordet har ändrats</string>
+
+    <!-- Strings related to database management -->
+    <string name="sports">Idrotter</string>
+    <string name="groups">Grupper</string>
+    <string name="fees">Avgifter</string>
+    <string name="activity_types">Aktivitetstyper</string>
+    <string name="save_changes">Spara ändringar</string>
+    <string name="invalid_table">Ogiltig tabell</string>
+    <string name="group_name">Grupp</string>
+    <string name="sport_name">Idrott</string>
+    <string name="sport_shorthand">Kortform</string>
+    <string name="activity_type">Aktivitetstyp</string>
+    <string name="fee_name">Avgiftstyp</string>
+    <string name="fee_shorthand">Kortform</string>
+    <string name="fee_periodicity">Periodicitet</string>
+    <string name="row_deactivate">Inaktivera</string>
+    <string name="row_activate">Aktivera</string>
+    <string name="row_add">Lägg till</string>
+
 </resources>

@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowActionBar">true</item>
         <item name="actionBarStyle">@style/AppTheme.ActionBarStyle</item>
+        <item name="android:windowAnimationStyle">@null</item>
     </style>
 
     <style name="AppTheme.ActionBarStyle" parent="Widget.AppCompat.Light.ActionBar.Solid">
@@ -27,6 +28,8 @@
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:background">@drawable/button_bg</item>
+        <item name="android:paddingLeft">@dimen/button_padding</item>
+        <item name="android:paddingRight">@dimen/button_padding</item>
     </style>
 
     <style name="LargeButtonStyle" parent="@android:style/Widget.Button">
@@ -35,6 +38,8 @@
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textStyle">normal</item>
         <item name="android:background">@drawable/large_button_bg</item>
+        <item name="android:paddingLeft">@dimen/large_button_padding</item>
+        <item name="android:paddingRight">@dimen/large_button_padding</item>
     </style>
 
 </resources>

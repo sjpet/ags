@@ -3,19 +3,32 @@
     package="se.agslulea.app">
 
     <application
+        android:name=".ui.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AdminMainActivity" android:label="@string/administer" />
-        <activity android:name=".AdminLoginActivity" android:label="@string/administer" />
+        <activity
+            android:name=".ui.activities.AdminMainActivity"
+            android:label="@string/administer" />
+        <activity
+            android:name=".ui.activities.AdminLoginActivity"
+            android:label="@string/administer" />
+        <activity
+            android:name=".ui.activities.ChangePasswordActivity"
+            android:label="@string/change_password" />
+        <activity android:name=".ui.activities.ModifyDatabaseActivity" />
+        <activity
+            android:name=".ui.activities.ModifyTableActivity"
+            android:windowSoftInputMode="stateHidden" />
     </application>
 
 </manifest>

@@ -16,23 +16,23 @@
         android:layout_weight="1">
 
         <Button
-            android:id="@+id/members_button"
+            android:id="@+id/groups_button"
             style="@style/LargeButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
-            android:text="@string/members"
+            android:text="@string/groups"
             tools:ignore="NestedWeights" />
 
         <Button
-            android:id="@+id/activity_button"
+            android:id="@+id/sports_button"
             style="@style/LargeButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
-            android:text="@string/schedule"
+            android:text="@string/sports"
             tools:ignore="NestedWeights" />
 
     </LinearLayout>
@@ -45,32 +45,22 @@
         android:layout_weight="1">
 
         <Button
-            android:id="@+id/database_button"
+            android:id="@+id/fees_button"
             style="@style/LargeButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
-            android:text="@string/database" />
+            android:text="@string/fees" />
 
         <Button
-            android:id="@+id/change_password_button"
+            android:id="@+id/activity_types_button"
             style="@style/LargeButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
-            android:text="@string/change_password"
-            tools:ignore="NestedWeights" />
-
-        <Button
-            android:id="@+id/log_out_button"
-            style="@style/LargeButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_margin="@dimen/margin"
-            android:text="@string/log_out" />
+            android:text="@string/activity_types" />
 
     </LinearLayout>
 
