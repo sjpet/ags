@@ -10,6 +10,7 @@
     <string name="log_out">Logga Ut</string>
     <string name="title_activity_admin_login">Logga In</string>
     <string name="action_not_allowed">Behörighet saknas</string>
+    <string name="generic_name">Samtliga</string>
 
     <!-- Strings related to login -->
     <string name="password">Lösenord</string>
@@ -55,5 +56,9 @@
     <string name="row_deactivate">Inaktivera</string>
     <string name="row_activate">Aktivera</string>
     <string name="row_add">Lägg till</string>
+
+    <!-- Strings related to the member list -->
+    <string name="list_members_group">Grupp:</string>
+    <string name="add_new_member">Ny medlem</string>
 
 </resources>

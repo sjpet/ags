@@ -17,6 +17,7 @@ class AdminMainActivity : AppCompatActivity() {
 
         val level = intent.getIntExtra("level", 0)
 
+        val members_button = findViewById(R.id.admin_members_button) as Button
         val database_button = findViewById(R.id.database_button) as Button
         val change_password_button = findViewById(R.id.change_password_button) as Button
         val log_out_button = findViewById(R.id.log_out_button) as Button

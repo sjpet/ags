@@ -3,10 +3,13 @@ package se.agslulea.app.data.db
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import org.jetbrains.anko.db.*
+import se.agslulea.app.R
 import se.agslulea.app.ui.App
 
 class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHelper.DB_NAME, null,
         DbHelper.DB_VERSION) {
+
+    private val genericName = ctx.applicationContext.getString(R.string.generic_name)
 
     companion object {
         val DB_NAME = "ags.db"
@@ -45,11 +48,15 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
                 SportTable.SPORT to TEXT + UNIQUE,
                 SportTable.SHORTHAND to TEXT + UNIQUE,
                 SportTable.IS_ACTIVE to INTEGER)
+        db.insert(SportTable.NAME, SportTable.ID to 0, SportTable.SPORT to genericName,
+                SportTable.SHORTHAND to "", SportTable.IS_ACTIVE to 1)
 
         db.createTable(GroupTable.NAME, true,
                 GroupTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,
                 GroupTable.GROUP to TEXT + UNIQUE,
                 GroupTable.IS_ACTIVE to INTEGER)
+        db.insert(GroupTable.NAME, GroupTable.ID to 0, GroupTable.GROUP to genericName,
+                GroupTable.IS_ACTIVE to 1)
 
         db.createTable(MemberTable.NAME, true,
                 MemberTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,

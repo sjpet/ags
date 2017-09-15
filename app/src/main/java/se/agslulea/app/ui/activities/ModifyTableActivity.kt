@@ -71,8 +71,8 @@ class ModifyTableActivity : AppCompatActivity() {
 
         // add existing rows
         val rows = when (table) {
-            GroupTable.NAME -> db.getGroups()
-            SportTable.NAME -> db.getSports()
+            GroupTable.NAME -> db.getGroups().drop(1)
+            SportTable.NAME -> db.getSports().drop(1)
             FeeTable.NAME -> db.getFees()
             ActivityTypeTable.NAME -> db.getActivityTypes()
             else -> listOf()
