@@ -1,7 +1,9 @@
 package se.agslulea.app.ui.activities
 
+import android.graphics.Typeface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.TypedValue
 import android.widget.*
 import org.jetbrains.anko.toast
 
@@ -30,16 +32,6 @@ class ModifyTableActivity : AppCompatActivity() {
         val tableLayout = findViewById(R.id.table_table) as TableLayout
         val saveButton = findViewById(R.id.table_save_button) as Button
 
-        val headers = when (table) {
-            GroupTable.NAME -> listOf(getString(R.string.group_name))
-            SportTable.NAME -> listOf(getString(R.string.sport_name),
-                    getString(R.string.sport_shorthand))
-            FeeTable.NAME -> listOf(getString(R.string.fee_name),
-                    getString(R.string.fee_shorthand), getString(R.string.fee_periodicity))
-            ActivityTypeTable.NAME -> listOf(getString(R.string.activity_type))
-            else -> listOf()
-        }
-
         val charWidths = when (table) {
             GroupTable.NAME -> listOf(30)
             SportTable.NAME -> listOf(30, 5)
@@ -48,12 +40,22 @@ class ModifyTableActivity : AppCompatActivity() {
             else -> listOf()
         }
 
-        val columnNames = when (table) {
-            GroupTable.NAME -> arrayOf(GroupTable.GROUP, GroupTable.IS_ACTIVE)
-            SportTable.NAME -> arrayOf(SportTable.SPORT, SportTable.SHORTHAND,
-                    SportTable.IS_ACTIVE)
-            FeeTable.NAME -> arrayOf(FeeTable.FEE, FeeTable.KEY, FeeTable.IS_ACTIVE)
-            ActivityTypeTable.NAME -> arrayOf(ActivityTypeTable.TYPE, ActivityTypeTable.IS_ACTIVE)
+        val columns = when (table) {
+            GroupTable.NAME -> arrayOf(
+                    Triple(GroupTable.GROUP, "STRING", getString(R.string.group_name)),
+                    Triple(GroupTable.IS_ACTIVE, "INT", getString(R.string.is_active)))
+            SportTable.NAME -> arrayOf(
+                    Triple(SportTable.SPORT, "STRING", getString(R.string.sport_name)),
+                    Triple(SportTable.SHORTHAND, "STRING", getString(R.string.sport_shorthand)),
+                    Triple(SportTable.IS_ACTIVE, "INT", getString(R.string.is_active)))
+            FeeTable.NAME -> arrayOf(
+                    Triple(FeeTable.FEE, "STRING", getString(R.string.fee_name)),
+                    Triple(FeeTable.KEY, "STRING", getString(R.string.fee_shorthand)),
+                    Triple(FeeTable.PERIOD, "INT", getString(R.string.fee_periodicity)),
+                    Triple(FeeTable.IS_ACTIVE, "INT", getString(R.string.is_active)))
+            ActivityTypeTable.NAME -> arrayOf(
+                    Triple(ActivityTypeTable.TYPE, "STRING", getString(R.string.activity_type)),
+                    Triple(ActivityTypeTable.IS_ACTIVE, "INT", getString(R.string.is_active)))
             else -> arrayOf()
         }
 
@@ -65,7 +67,7 @@ class ModifyTableActivity : AppCompatActivity() {
             else -> "_id"
         }
 
-        addHeaderRow(tableLayout, headers)
+        addHeaderRow(tableLayout, columns.map { x -> x.third })
 
         // add existing rows
         val rows = when (table) {
@@ -80,8 +82,7 @@ class ModifyTableActivity : AppCompatActivity() {
                 addEditRow(tableLayout,
                         stringify(row.dropLast(1)),
                         charWidths,
-                        row.last() as Int,
-                        columnNames)
+                        row.last() as Int)
             }
         } else {
             for (row in rows) {
@@ -90,7 +91,7 @@ class ModifyTableActivity : AppCompatActivity() {
         }
 
         val nextId = rows.size + 1
-        addLastRow(tableLayout, charWidths, table, columnNames, idColumn, nextId)
+        addLastRow(tableLayout, charWidths, table, columns, idColumn, nextId)
 
         saveButton.setOnClickListener {
             for ((insertTable, insertPairs) in inserts) {
@@ -99,7 +100,7 @@ class ModifyTableActivity : AppCompatActivity() {
             var rowIndex = 0
             for (tableRow in tableRows) {
                 rowIndex += 1
-                updateRow(table, idColumn, rowIndex, tableRow, columnNames)
+                updateRow(table, idColumn, rowIndex, tableRow, columns)
             }
             finish()
         }
@@ -110,24 +111,28 @@ class ModifyTableActivity : AppCompatActivity() {
                           idColumn: String,
                           rowId: Int,
                           tableRow: TableRow,
-                          columnNames: Array<String>) {
+                          columns: Array<Triple<String, String, String>>) {
         var columnValuePairs: Array<Pair<String, Any?>> = arrayOf()
         var k = 0
-        for (column in columnNames.dropLast(1)) {
+        for ((column, type, _) in columns.dropLast(1)) {
             val thisView = tableRow.getChildAt(k)
-            val value = if (thisView is EditText) {
-                thisView.text.toString()
-            } else if (thisView is TextView) {
-                thisView.text
-            } else {
-                ""
+            val value: String = when (thisView) {
+                is EditText -> thisView.text.toString()
+                is TextView -> thisView.text.toString()
+                else -> "0"
             }
-            columnValuePairs += Pair(column, value)
+
+            columnValuePairs += if (type == "INT") {
+                Pair(column, value.toLong())
+            } else {
+                Pair(column, value)
+            }
+
             k += 1
         }
-        val toggleButton = tableRow.getChildAt(k) as Button
-        columnValuePairs += Pair(columnNames.last(),
-                if (toggleButton.text == getString(R.string.row_deactivate)) { 1 } else { 0 })
+        val activeBox = tableRow.getChildAt(k) as CheckBox
+        columnValuePairs += Pair(columns.last().first,
+                if (activeBox.isChecked) { 1 } else { 0 })
 
         db.update(table, idColumn, rowId, *columnValuePairs)
     }
@@ -140,6 +145,8 @@ class ModifyTableActivity : AppCompatActivity() {
         for (column in columns) {
             val textView = TextView(this)
             textView.text = column
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.toFloat())
+            textView.setTypeface(Typeface.DEFAULT_BOLD)
             headerRow.addView(textView)
         }
 
@@ -149,7 +156,7 @@ class ModifyTableActivity : AppCompatActivity() {
     private fun addLastRow(tableLayout: TableLayout,
                            charWidths: List<Int>,
                            table: String,
-                           columnNames: Array<String>,
+                           columns: Array<Triple<String, String, String>>,
                            idColumn: String,
                            nextId: Int) {
 
@@ -157,11 +164,11 @@ class ModifyTableActivity : AppCompatActivity() {
                 false) as TableRow
         val columnMap: MutableMap<String, EditText> = mutableMapOf()
 
-        for ((columnName, charWidth) in columnNames zip charWidths) {
+        for ((column, charWidth) in columns.map { (x, _, _) -> x } zip charWidths) {
             val editText = EditText(this)
             editText.setEms(charWidth)
             lastRow.addView(editText)
-            columnMap[columnName] = editText
+            columnMap[column] = editText
         }
 
         val addButton = layoutInflater.inflate(R.layout.button_template, lastRow, false) as Button
@@ -172,14 +179,14 @@ class ModifyTableActivity : AppCompatActivity() {
             // Get string values
             var values: List<String> = listOf()
             var columnValuePairs: Array<Pair<String, Any?>> = arrayOf()
-            for (column in columnNames.dropLast(1)) {
+            for ((column, _) in columns.dropLast(1)) {
                 val value = columnMap[column]!!.text.toString()
                 values += value
                 columnValuePairs += Pair(column, value)
             }
 
             // Last column (IsActive) is always true
-            columnValuePairs += Pair(columnNames.last(), 1)
+            columnValuePairs += Pair(columns.last().first, 1)
 
             // Assign ID
             columnValuePairs += Pair(idColumn, nextId)
@@ -187,8 +194,8 @@ class ModifyTableActivity : AppCompatActivity() {
 
             // convert to an editable row and create a new last row
             tableLayout.removeView(lastRow)
-            addEditRow(tableLayout, values, charWidths, 1, columnNames)
-            addLastRow(tableLayout, charWidths, table, columnNames, idColumn, nextId + 1)
+            addEditRow(tableLayout, values, charWidths, 1)
+            addLastRow(tableLayout, charWidths, table, columns, idColumn, nextId + 1)
         }
 
         tableLayout.addView(lastRow)
@@ -204,25 +211,13 @@ class ModifyTableActivity : AppCompatActivity() {
         for (value in values) {
             val textView = TextView(this)
             textView.text = value
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.toFloat())
             fixedRow.addView(textView)
         }
 
-        val toggleActiveButton = layoutInflater.inflate(R.layout.button_template, fixedRow,
-                false) as Button
-        if (isActive == 1) {
-            toggleActiveButton.text = getString(R.string.row_deactivate)
-        } else {
-            toggleActiveButton.text = getString(R.string.row_activate)
-        }
-        fixedRow.addView(toggleActiveButton)
-
-        toggleActiveButton.setOnClickListener {
-            if (toggleActiveButton.text == getString(R.string.row_deactivate)) {
-                toggleActiveButton.text = getString(R.string.row_activate)
-            } else {
-                toggleActiveButton.text = getString(R.string.row_deactivate)
-            }
-        }
+        val activeBox = CheckBox(this)
+        activeBox.isChecked = isActive == 1
+        fixedRow.addView(activeBox)
 
         tableLayout.addView(fixedRow)
         tableRows += fixedRow
@@ -231,8 +226,7 @@ class ModifyTableActivity : AppCompatActivity() {
     private fun addEditRow(tableLayout: TableLayout,
                            values: List<String>,
                            charWidths: List<Int>,
-                           isActive: Int,
-                           columnNames: Array<String>) {
+                           isActive: Int) {
 
         val editRow = layoutInflater.inflate(R.layout.table_row_template, tableLayout,
                 false) as TableRow
@@ -244,34 +238,19 @@ class ModifyTableActivity : AppCompatActivity() {
             editRow.addView(editText)
         }
 
-        val toggleActiveButton = layoutInflater.inflate(R.layout.button_template, editRow,
-                false) as Button
-        if (isActive == 1) {
-            toggleActiveButton.text = getString(R.string.row_deactivate)
-        } else {
-            toggleActiveButton.text = getString(R.string.row_activate)
-        }
-        editRow.addView(toggleActiveButton)
-
-        toggleActiveButton.setOnClickListener {
-            if (toggleActiveButton.text == getString(R.string.row_deactivate)) {
-                toggleActiveButton.text = getString(R.string.row_activate)
-            } else {
-                toggleActiveButton.text = getString(R.string.row_deactivate)
-            }
-        }
+        val activeBox = CheckBox(this)
+        activeBox.isChecked = isActive == 1
+        editRow.addView(activeBox)
 
         tableLayout.addView(editRow)
         tableRows += editRow
     }
 }
 
-fun stringify(anyList: List<Any?>) = anyList.map {
-    x -> if (x is String) {
-        x
-    } else if (x is Long) {
-        x.toString()
-    } else {
-        ""
+fun stringify(anyList: List<Any?>) = anyList.map { x ->
+    when (x) {
+        is String -> x
+        is Long -> x.toString()
+        else -> ""
     }
 }

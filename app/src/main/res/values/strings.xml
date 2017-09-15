@@ -42,6 +42,7 @@
     <string name="groups">Grupper</string>
     <string name="fees">Avgifter</string>
     <string name="activity_types">Aktivitetstyper</string>
+    <string name="is_active">Aktiv</string>
     <string name="save_changes">Spara ändringar</string>
     <string name="invalid_table">Ogiltig tabell</string>
     <string name="group_name">Grupp</string>
