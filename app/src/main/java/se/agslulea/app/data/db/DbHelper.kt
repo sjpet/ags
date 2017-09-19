@@ -13,7 +13,7 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
 
     companion object {
         val DB_NAME = "ags.db"
-        val DB_VERSION = 3
+        val DB_VERSION = 4
         val instance by lazy { DbHelper() }
     }
 
@@ -101,7 +101,7 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
 
-        db.dropTable(PasswordsTable.NAME, true)
+        /* db.dropTable(PasswordsTable.NAME, true)
         db.dropTable(ActivityTable.NAME, true)
         db.dropTable(ActivityTypeTable.NAME, true)
         db.dropTable(ActivityParticipantsTable.NAME, true)
@@ -113,6 +113,6 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
         db.dropTable(PaidFeesTable.NAME, true)
         db.dropTable(ClassesTable.NAME, true)
 
-        onCreate(db)
+        onCreate(db) */
     }
 }

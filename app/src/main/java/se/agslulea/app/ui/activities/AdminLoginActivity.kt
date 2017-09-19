@@ -23,23 +23,23 @@ class AdminLoginActivity : AppCompatActivity() {
         val passwordText = findViewById(R.id.password_text) as EditText
         val loginButton = findViewById(R.id.login_button) as Button
 
-        val current_super_password = db.getPassword(1)
-        val current_regular_password = db.getPassword(2)
+        val current_super_password = db.getPassword(2)
+        val current_regular_password = db.getPassword(1)
 
         if (current_regular_password == null) {
-            startActivity<ChangePasswordActivity>("level" to 2)
+            startActivity<ChangePasswordActivity>("adminLevel" to 1)
         }
 
         if (current_super_password == null) {
-            startActivity<ChangePasswordActivity>("level" to 1)
+            startActivity<ChangePasswordActivity>("adminLevel" to 2)
         }
 
         loginButton.setOnClickListener {
-            val super_password = db.getPassword(1)
-            val regular_password = db.getPassword(2)
+            val super_password = db.getPassword(2)
+            val regular_password = db.getPassword(1)
             when (passwordText.text.toString()) {
-                super_password -> startActivity<AdminMainActivity>("level" to 1)
-                regular_password -> startActivity<AdminMainActivity>("level" to 2)
+                super_password -> startActivity<AdminMainActivity>("adminLevel" to 2)
+                regular_password -> startActivity<AdminMainActivity>("adminLevel" to 1)
                 else -> toast(R.string.invalid_password)
             }
         }

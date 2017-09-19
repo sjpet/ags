@@ -71,6 +71,12 @@ object MemberTable {
     val SIGNED = "SignedAntiDoping"
 }
 
+object MemberMetaTable {
+    val FULL_NAME = "FullName"
+    val DATE_OF_BIRTH = "DateOfBirth"
+    val FEES_PAID = "FeesPaid"
+}
+
 object GroupMemberTable {
     val NAME = "GroupMembers"
     val ID = "_id"

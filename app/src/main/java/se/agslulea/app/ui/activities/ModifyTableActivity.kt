@@ -167,6 +167,7 @@ class ModifyTableActivity : AppCompatActivity() {
         for ((column, charWidth) in columns.map { (x, _, _) -> x } zip charWidths) {
             val editText = EditText(this)
             editText.setEms(charWidth)
+            editText.setSingleLine(true)
             lastRow.addView(editText)
             columnMap[column] = editText
         }
@@ -235,6 +236,7 @@ class ModifyTableActivity : AppCompatActivity() {
             val editText = EditText(this)
             editText.setEms(charWidth)
             editText.setText(value)
+            editText.setSingleLine(true)
             editRow.addView(editText)
         }
 

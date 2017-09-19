@@ -5,7 +5,10 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:padding="@dimen/margin"
+    android:paddingTop="@dimen/margin"
+    android:paddingBottom="@dimen/margin"
+    android:paddingLeft="@dimen/lonely_list_padding"
+    android:paddingRight="@dimen/lonely_list_padding"
     android:baselineAligned="false"
     android:gravity="center_horizontal">
 
@@ -27,20 +30,20 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
     
-    <SearchView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/member_list_search_bar"
-        android:layout_weight="0" />
-    
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/member_list_view"
         android:layout_weight="1" />
 
+    <SearchView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/member_list_search_bar"
+        android:layout_weight="0" />
+
     <Button
-        android:id="@+id/change_password_button"
+        android:id="@+id/new_member_button"
         style="@style/ButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

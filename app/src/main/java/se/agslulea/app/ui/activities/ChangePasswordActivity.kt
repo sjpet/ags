@@ -17,7 +17,7 @@ class ChangePasswordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_password)
 
-        val level = intent.getIntExtra("level", 0)
+        val level = intent.getIntExtra("adminLevel", 0)
         if (level < 1) {
             toast(R.string.action_not_allowed)
             finish()
@@ -46,7 +46,7 @@ class ChangePasswordActivity : AppCompatActivity() {
             getString(R.string.change)
         })
         sb.append(" ${getString(R.string.title_infix)} ")
-        sb.append(if (level == 1) {
+        sb.append(if (level == 2) {
             getString(R.string.super_admin)
         } else {
             getString(R.string.regular_admin)
@@ -63,7 +63,11 @@ class ChangePasswordActivity : AppCompatActivity() {
             } else if (newPassword != repeatedPassword) {
                 toast(R.string.new_password_mismatch)
             } else {
-                db.setPassword(level, newPassword)
+                if (actualCurrentPassword != null) {
+                    db.updatePassword(level, newPassword)
+                } else {
+                    db.setPassword(level, newPassword)
+                }
                 toast(R.string.password_changed)
                 finish()
             }

@@ -15,19 +15,23 @@ class AdminMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_main)
 
-        val level = intent.getIntExtra("level", 0)
+        val adminLevel = intent.getIntExtra("adminLevel", 0)
 
         val members_button = findViewById(R.id.admin_members_button) as Button
         val database_button = findViewById(R.id.database_button) as Button
         val change_password_button = findViewById(R.id.change_password_button) as Button
         val log_out_button = findViewById(R.id.log_out_button) as Button
 
+        members_button.setOnClickListener {
+            startActivity<ListMembersActivity>("adminLevel" to adminLevel)
+        }
+
         database_button.setOnClickListener {
-            startActivity<ModifyDatabaseActivity>("level" to level)
+            startActivity<ModifyDatabaseActivity>("adminLevel" to adminLevel)
         }
 
         change_password_button.setOnClickListener {
-            startActivity<ChangePasswordActivity>("level" to level)
+            startActivity<ChangePasswordActivity>("adminLevel" to adminLevel)
         }
 
         log_out_button.setOnClickListener {

@@ -7,10 +7,12 @@
     <string name="administer">Administrera</string>
     <string name="schedule">Schema</string>
     <string name="database">Databas</string>
-    <string name="log_out">Logga Ut</string>
-    <string name="title_activity_admin_login">Logga In</string>
+    <string name="log_out">Logga ut</string>
+    <string name="title_activity_admin_login">Logga in</string>
     <string name="action_not_allowed">Behörighet saknas</string>
     <string name="generic_name">Samtliga</string>
+    <string name="add">Lägg till</string>
+    <string name="save_changes">Spara ändringar</string>
 
     <!-- Strings related to login -->
     <string name="password">Lösenord</string>
@@ -44,7 +46,6 @@
     <string name="fees">Avgifter</string>
     <string name="activity_types">Aktivitetstyper</string>
     <string name="is_active">Aktiv</string>
-    <string name="save_changes">Spara ändringar</string>
     <string name="invalid_table">Ogiltig tabell</string>
     <string name="group_name">Grupp</string>
     <string name="sport_name">Idrott</string>
@@ -60,5 +61,20 @@
     <!-- Strings related to the member list -->
     <string name="list_members_group">Grupp:</string>
     <string name="add_new_member">Ny medlem</string>
+    <string name="first_name">Förnamn</string>
+    <string name="family_name">Efternamn</string>
+    <string name="personal_id_number">Personnumer</string>
+    <string name="guardian">Målsman</string>
+    <string name="email">E-post</string>
+    <string name="phone">Telefon</string>
+    <string name="belongs_to_group">Hör till grupp:</string>
+    <string name="member_fees">Avgifter:</string>
+    <string name="signed_ada">Signerat antidopingavtal</string>
+    <string name="add_member_title">Lägg till ny medlem</string>
+    <string name="edit_member_title">Uppdatera medlemsuppgifter</string>
+    <string name="invalid_personal_id">Ogiltigt personnummer</string>
+    <string name="first_name_missing">Förnamn saknas</string>
+    <string name="family_name_missing">Efternamn saknas</string>
+    <string name="invalid_email">Ogiltig E-postaddress</string>
 
 </resources>
