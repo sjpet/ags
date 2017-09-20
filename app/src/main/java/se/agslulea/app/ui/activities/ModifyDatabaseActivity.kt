@@ -14,7 +14,7 @@ class ModifyDatabaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_modify_database)
 
-        val level = intent.getIntExtra("level", 0)
+        val adminLevel = intent.getIntExtra("adminLevel", 0)
 
         val groups_button = findViewById(R.id.groups_button) as Button
         val sports_button = findViewById(R.id.sports_button) as Button
@@ -22,19 +22,23 @@ class ModifyDatabaseActivity : AppCompatActivity() {
         val activity_types_button = findViewById(R.id.activity_types_button) as Button
 
         groups_button.setOnClickListener {
-            startActivity<ModifyTableActivity>("table" to GroupTable.NAME, "level" to level)
+            startActivity<ModifyTableActivity>("table" to GroupTable.NAME,
+                    "adminLevel" to adminLevel)
         }
 
         sports_button.setOnClickListener {
-            startActivity<ModifyTableActivity>("table" to SportTable.NAME, "level" to level)
+            startActivity<ModifyTableActivity>("table" to SportTable.NAME,
+                    "adminLevel" to adminLevel)
         }
 
         fees_button.setOnClickListener {
-            startActivity<ModifyTableActivity>("table" to FeeTable.NAME, "level" to level)
+            startActivity<ModifyTableActivity>("table" to FeeTable.NAME,
+                    "adminLevel" to adminLevel)
         }
 
         activity_types_button.setOnClickListener {
-            startActivity<ModifyTableActivity>("table" to ActivityTypeTable.NAME, "level" to level)
+            startActivity<ModifyTableActivity>("table" to ActivityTypeTable.NAME,
+                    "adminLevel" to adminLevel)
         }
     }
 }

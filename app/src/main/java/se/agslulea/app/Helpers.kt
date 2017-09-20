@@ -1,5 +1,6 @@
 package se.agslulea.app
 
+import se.agslulea.app.data.db.MemberMetaTable
 import java.util.*
 
 val whitespaceRegex = "\\s+".toRegex()
@@ -7,6 +8,9 @@ val numberRegex = "[0-9]+".toRegex()
 val personalIdRegex = "[0-9]{8}-[0-9]{4}".toRegex()
 val emailRegex = ("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" +
         "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$").toRegex()
+val yearFrom = "[0-9]{4}-".toRegex()
+val yearTo = "-[0-9]{4}".toRegex()
+val yearRange = "[0-9]{4}-[0-9]{4}".toRegex()
 
 val prepositions = listOf("van", "von", "der", "af", "de", "la", "da")
 
@@ -71,5 +75,44 @@ fun formatPersonalId(s: String): String {
         10 -> century + s.substring(0..5) + "-" + s.substring(6..9)
         13 -> s
         else -> "19000000-0000"
+    }
+}
+
+fun filterMemberList(members: List<Map<String, Any>>,
+                     selectedGroup: Int,
+                     searchQuery: String?): List<Map<String, Any>> {
+    return members.filter {
+        member -> (if (selectedGroup > 0) {
+        selectedGroup in member[MemberMetaTable.GROUPS] as List<Int>
+    } else {
+        true
+    } && if (searchQuery != null) {
+        when {
+            searchQuery.matches(yearFrom) -> {
+                val year = searchQuery.substring(0..3).toInt()
+                (member[MemberMetaTable.DATE_OF_BIRTH] as String)
+                        .substring(0..3).toInt() >= year
+            }
+            searchQuery.matches(yearTo) -> {
+                val year = searchQuery.substring(1..4).toInt()
+                (member[MemberMetaTable.DATE_OF_BIRTH] as String)
+                        .substring(0..3).toInt() <= year
+            }
+            searchQuery.matches(yearRange) -> {
+                val years = Pair(searchQuery.substring(0..3).toInt(),
+                        searchQuery.substring(5..8).toInt())
+                val (fromYear, toYear) = if (years.first > years.second) {
+                    Pair(years.second, years.first)
+                } else {
+                    years
+                }
+                (member[MemberMetaTable.DATE_OF_BIRTH] as String)
+                        .substring(0..3).toInt() in (fromYear..toYear)
+            }
+            else -> searchQuery in (member[MemberMetaTable.FULL_NAME] as String)
+        }
+    } else {
+        true
+    })
     }
 }

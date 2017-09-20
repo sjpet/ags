@@ -31,10 +31,11 @@
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.activities.ListMembersActivity"
-            android:label="@string/members"/>
+            android:label="@string/members" />
         <activity
             android:name=".ui.activities.AddOrEditMemberActivity"
             android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".ui.activities.PickMembersActivity"></activity>
     </application>
 
 </manifest>

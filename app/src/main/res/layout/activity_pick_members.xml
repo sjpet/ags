@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/margin"
+    android:paddingBottom="@dimen/margin"
+    android:paddingLeft="@dimen/lonely_list_padding"
+    android:paddingRight="@dimen/lonely_list_padding"
+    android:baselineAligned="false"
+    android:gravity="center_horizontal">
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pick_member_list_view"
+        android:layout_weight="1" />
+
+    <SearchView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/pick_members_search_bar"
+        android:layout_weight="0" />
+
+    <Button
+        android:id="@+id/pick_members_save_button"
+        style="@style/ButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save_changes"
+        android:layout_marginTop="@dimen/margin" />
+
+
+</LinearLayout>

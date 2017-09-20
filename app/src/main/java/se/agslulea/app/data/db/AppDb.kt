@@ -1,9 +1,16 @@
 package se.agslulea.app.data.db
 
+import android.content.Context
 import org.jetbrains.anko.db.*
-import java.lang.reflect.Member
+import se.agslulea.app.R
+import se.agslulea.app.ui.App
+import java.text.SimpleDateFormat
+import java.util.*
 
-class AppDb(private val dbHelper: DbHelper = DbHelper.instance) {
+class AppDb(ctx: Context = App.instance,
+            private val dbHelper: DbHelper = DbHelper.instance) {
+
+    private val noAdaString = ctx.applicationContext.getString(R.string.no_ada)
 
     fun getPassword(level: Int) = dbHelper.use {
         select(PasswordsTable.NAME, PasswordsTable.KEY).whereArgs(
@@ -28,7 +35,9 @@ class AppDb(private val dbHelper: DbHelper = DbHelper.instance) {
     }
 
     fun getGroupNames() = dbHelper.use {
-        select(GroupTable.NAME, GroupTable.ID, GroupTable.GROUP).parseList(rowParser {
+        select(GroupTable.NAME, GroupTable.ID, GroupTable.GROUP)
+                .whereArgs("${GroupTable.IS_ACTIVE} = 1")
+                .parseList(rowParser {
             id: Int, group: String -> mapOf(GroupTable.ID to id, GroupTable.GROUP to group)
         }).sortedBy { x -> x[GroupTable.ID] as Int}
     }
@@ -41,13 +50,43 @@ class AppDb(private val dbHelper: DbHelper = DbHelper.instance) {
     }
 
     fun getFees() = dbHelper.use {
-        // delete(FeeTable.NAME, "${FeeTable.KEY} = 'V'")
-        // delete(FeeTable.NAME, "${FeeTable.KEY} = 'M'")
         select(FeeTable.NAME, FeeTable.FEE, FeeTable.KEY, FeeTable.PERIOD,
                 FeeTable.IS_ACTIVE).parseList(rowParser {
             a: String, b: String, c: String, d: Int -> listOf(a, b, c, d)
         })
     }
+
+    fun getFeeNamesWithTime() = dbHelper.use {
+        val now = Calendar.getInstance()
+        val year = now.get(Calendar.YEAR)
+        val shortYear = year.toString().substring(2..3)
+        val semester = if (now.get(Calendar.MONTH) > 6) {
+            "HT" + shortYear
+        } else {
+            "VT" + shortYear
+        }
+        select(FeeTable.NAME, FeeTable.ID, FeeTable.FEE, FeeTable.PERIOD)
+                .whereArgs("${FeeTable.IS_ACTIVE} = 1")
+                .parseList(rowParser {
+            id: Int, fee: String, period: String ->
+            mapOf(FeeTable.ID to id, FeeTable.FEE to fee + when (period) {
+                "1" -> " " + year.toString()
+                "2" -> " " + semester
+                else -> ""
+            })
+        }).sortedBy { x -> x[FeeTable.ID] as Int}
+    }
+
+    fun memberHasPaidFee(memberId: Int, feeId: Int) = (dbHelper.use {
+        val now = Calendar.getInstance()
+        select(PaidFeesTable.NAME, PaidFeesTable.MEMBER).whereArgs(
+                "${PaidFeesTable.VALID_UNTIL} >= {today} AND " +
+                        "${PaidFeesTable.MEMBER} = {memberId} AND " +
+                        "${PaidFeesTable.FEE} = {feeId}",
+                "today" to SimpleDateFormat("yyyy-MM-dd").format(now.time),
+                "memberId" to memberId,
+                "feeId" to feeId).parseOpt(IntParser)
+    } != null)
 
     fun getActivityTypes() = dbHelper.use {
         select(ActivityTypeTable.NAME, ActivityTypeTable.TYPE,
@@ -56,7 +95,7 @@ class AppDb(private val dbHelper: DbHelper = DbHelper.instance) {
         })
     }
 
-    fun nextFreeId(tableName: String, idColumn: String): Int {
+    private fun nextFreeId(tableName: String, idColumn: String): Int {
         val maxId = dbHelper.use {
             select(tableName, idColumn)
                     .orderBy(idColumn, SqlOrderDirection.DESC)
@@ -76,8 +115,12 @@ class AppDb(private val dbHelper: DbHelper = DbHelper.instance) {
             val feeNames = select(FeeTable.NAME, FeeTable.ID, FeeTable.KEY).parseList(rowParser {
                 a: Int, b: String -> Pair(a, b)
             }).associateBy({it.first}, {it.second})
+            val now = Calendar.getInstance()
             select(PaidFeesTable.NAME, PaidFeesTable.FEE)
-                    .whereArgs("${PaidFeesTable.MEMBER} = {memberId}", "memberId" to memberId)
+                    .whereArgs("${PaidFeesTable.MEMBER} = {memberId} AND " +
+                            "${PaidFeesTable.VALID_UNTIL} >= {today}",
+                            "memberId" to memberId,
+                            "today" to SimpleDateFormat("yyyy-MM-dd").format(now.time))
                     .parseList(rowParser{
                         a: Int -> if (a in feeNames) {
                             feeNames[a]!!
@@ -89,20 +132,29 @@ class AppDb(private val dbHelper: DbHelper = DbHelper.instance) {
         return fees.joinToString(", ")
     }
 
+    private fun memberGroups(memberId: Int): List<Int> = dbHelper.use {
+        select(GroupMemberTable.NAME, GroupMemberTable.GROUP)
+                .whereArgs("${GroupMemberTable.MEMBER} = {memberId}", "memberId" to memberId)
+                .parseList(IntParser)
+    }
+
     fun memberWithPersonalIdExists(personalId: String) = (dbHelper.use {
         select(MemberTable.NAME, MemberTable.PERSONAL_ID).whereArgs(
                 "${MemberTable.PERSONAL_ID} = {personalId}",
-                "personalId" to personalId).parseOpt(StringParser) } != null)
+                "personalId" to personalId).parseOpt(StringParser)
+    } != null)
 
     fun getMemberList() = dbHelper.use {
         select(MemberTable.NAME, MemberTable.ID, MemberTable.FIRST_NAME, MemberTable.FAMILY_NAME,
-                MemberTable.PERSONAL_ID).parseList(rowParser {
-            a: Int, b: String, c: String, d: String -> mapOf(
+                MemberTable.PERSONAL_ID, MemberTable.SIGNED).parseList(rowParser {
+            a: Int, b: String, c: String, d: String, e: Int -> mapOf(
                 MemberTable.ID to a,
                 MemberMetaTable.FULL_NAME to b + " " + c,
                 MemberMetaTable.DATE_OF_BIRTH to (d.substring(0..3) + "-" + d.substring(4..5)
                         + "-" + d.substring(6..7)),
-                MemberMetaTable.FEES_PAID to feesPaid(a))
+                MemberMetaTable.FEES_PAID to feesPaid(a),
+                MemberMetaTable.GROUPS to memberGroups(a),
+                MemberTable.SIGNED to if (e == 1) { "" } else { noAdaString })
         })
     }
 
@@ -205,6 +257,33 @@ class AppDb(private val dbHelper: DbHelper = DbHelper.instance) {
                         GroupMemberTable.LEADER to 0)
             }
         }
+    }
+
+    fun payFee(memberId: Int, feeId: Int) {
+        if (!memberHasPaidFee(memberId, feeId)) {
+            dbHelper.use {
+                val nextId = nextFreeId(PaidFeesTable.NAME, PaidFeesTable.ID)
+                val now = Calendar.getInstance()
+                val expiryDate = now.get(Calendar.YEAR).toString() +
+                        if (now.get(Calendar.MONTH) > 6) { "-12-31" } else { "-06-30" }
+                insert(PaidFeesTable.NAME,
+                        PaidFeesTable.ID to nextId,
+                        PaidFeesTable.MEMBER to memberId,
+                        PaidFeesTable.FEE to feeId,
+                        PaidFeesTable.VALID_UNTIL to expiryDate)
+            }
+        }
+    }
+
+    fun removeFee(memberId: Int, feeId: Int) = dbHelper.use {
+        val now = Calendar.getInstance()
+        delete(PaidFeesTable.NAME,
+                "${PaidFeesTable.MEMBER} = {memberId} AND " +
+                        "${PaidFeesTable.FEE} = {feeId} AND " +
+                        "${PaidFeesTable.VALID_UNTIL} >= {today}",
+                "memberId" to memberId,
+                "feeId" to feeId,
+                "today" to SimpleDateFormat("yyyy-MM-dd").format(now.time))
     }
 
     // Consider splitting into table-specific functions with validation

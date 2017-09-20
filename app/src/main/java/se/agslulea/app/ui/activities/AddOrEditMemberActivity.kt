@@ -2,11 +2,13 @@ package se.agslulea.app.ui.activities
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import org.jetbrains.anko.toast
 import se.agslulea.app.*
 
 import se.agslulea.app.data.db.AppDb
+import se.agslulea.app.data.db.FeeTable
 import se.agslulea.app.data.db.GroupTable
 import se.agslulea.app.data.db.MemberTable
 
@@ -22,6 +24,9 @@ class AddOrEditMemberActivity : AppCompatActivity() {
         val adminLevel = intent.getIntExtra("adminLevel", 0)
         val preSelectedGroup = intent.getIntExtra("preSelectedGroup", 0)
 
+        var fees: List<Map<String, Any>> = listOf()
+        var feeCheckBoxesMap: Map<Int, CheckBox> = mapOf()
+
         val firstNameText = findViewById(R.id.first_name_text) as EditText
         val familyNameText = findViewById(R.id.family_name_text) as EditText
         val personalIdText = findViewById(R.id.personal_id_text) as EditText
@@ -29,6 +34,7 @@ class AddOrEditMemberActivity : AppCompatActivity() {
         val emailText = findViewById(R.id.email_text) as EditText
         val phoneText = findViewById(R.id.phone_text) as EditText
         val checkBoxesLayout = findViewById(R.id.check_boxes_layout) as LinearLayout
+        val feeBoxesLayout = findViewById(R.id.fee_check_boxes_layout) as LinearLayout
         val adaCheckBox = findViewById(R.id.ada_box) as CheckBox
         val acceptButton = findViewById(R.id.accept_button) as Button
 
@@ -42,18 +48,19 @@ class AddOrEditMemberActivity : AppCompatActivity() {
 
         // Populate group membership check boxes
         val groups = db.getGroupNames().drop(1)
-        var groupCheckBoxes: Array<CheckBox> = arrayOf()
+        var groupCheckBoxes: Array<Pair<Int, CheckBox>> = arrayOf()
         for (group in groups) {
             val checkBox = CheckBox(this)
             val label = TextView(this)
             checkBox.isChecked = group[GroupTable.ID] == preSelectedGroup
             label.text = group[GroupTable.GROUP] as String
-            groupCheckBoxes += checkBox
+            groupCheckBoxes += Pair(group[GroupTable.ID] as Int, checkBox)
             val pairLayout = LinearLayout(this)
             pairLayout.addView(checkBox)
             pairLayout.addView(label)
             checkBoxesLayout.addView(pairLayout)
         }
+        val groupCheckBoxesMap = groupCheckBoxes.associateBy({it.first}, {it.second})
 
         // Get current values if action is edit
         if (memberId >= 0) {
@@ -66,8 +73,10 @@ class AddOrEditMemberActivity : AppCompatActivity() {
             emailText.setText(thisMember[MemberTable.EMAIL] as String)
             phoneText.setText(thisMember[MemberTable.PHONE] as String)
             adaCheckBox.isChecked = thisMember[MemberTable.SIGNED] as Boolean
-            for (groupId in 1..groups.size) {
-                groupCheckBoxes[groupId - 1].isChecked = db.memberInGroup(memberId, groupId)
+
+            groups.map { group ->
+                val groupId = group[GroupTable.ID] as Int
+                groupCheckBoxesMap[groupId]!!.isChecked = db.memberInGroup(memberId, groupId)
             }
 
             // Lock personalId unless super admin
@@ -81,6 +90,21 @@ class AddOrEditMemberActivity : AppCompatActivity() {
 
             if (adminLevel > 0) {
                 // Show fee payment checkboxes
+                feeBoxesLayout.visibility = View.VISIBLE
+                fees = db.getFeeNamesWithTime()
+                var feeCheckBoxes: Array<Pair<Int, CheckBox>> = arrayOf()
+                for (fee in fees) {
+                    val checkBox = CheckBox(this)
+                    val label = TextView(this)
+                    checkBox.isChecked = db.memberHasPaidFee(memberId, fee[FeeTable.ID] as Int)
+                    label.text = fee[FeeTable.FEE] as String
+                    feeCheckBoxes += Pair(fee[FeeTable.ID] as Int, checkBox)
+                    val pairLayout = LinearLayout(this)
+                    pairLayout.addView(checkBox)
+                    pairLayout.addView(label)
+                    feeBoxesLayout.addView(pairLayout)
+                }
+                feeCheckBoxesMap = feeCheckBoxes.associateBy({it.first}, {it.second})
             }
         }
 
@@ -126,22 +150,49 @@ class AddOrEditMemberActivity : AppCompatActivity() {
                     db.superUpdateMember(memberId, firstName, familyName, personalId, guardian,
                             email, phone, signedAda)
                 }
-                for (group in 1..groups.size) {
-                    if (groupCheckBoxes[group - 1].isChecked) {
-                        db.addMemberToGroup(memberId, group)
+
+                // Update groups
+                groups.map { group ->
+                    val groupId = group[GroupTable.ID] as Int
+                    if (groupCheckBoxesMap[groupId]!!.isChecked) {
+                        db.addMemberToGroup(memberId, groupId)
                     } else {
-                        db.removeMemberFromGroup(memberId, group)
+                        db.removeMemberFromGroup(memberId, groupId)
                     }
                 }
+
+                // Update fees
+                fees.map { fee ->
+                    val feeId = fee[FeeTable.ID] as Int
+                    if (feeCheckBoxesMap[feeId]!!.isChecked) {
+                        db.payFee(memberId, feeId)
+                    } else {
+                        db.removeFee(memberId, feeId)
+                    }
+                }
+
                 finish()
             } else {
                 val newId = db.addNewMember(firstName, familyName, personalId, guardian, email,
                         phone, signedAda)
-                for (group in 1..groups.size) {
-                    if (groupCheckBoxes[group - 1].isChecked) {
-                        db.addMemberToGroup(newId, group)
+
+                // Update groups
+                groups.map { group ->
+                    val groupId = group[GroupTable.ID] as Int
+                    if (groupCheckBoxesMap[groupId]!!.isChecked) {
+                        db.addMemberToGroup(newId, groupId)
                     } else {
-                        db.removeMemberFromGroup(newId, group)
+                        db.removeMemberFromGroup(newId, groupId)
+                    }
+                }
+
+                // Update fees
+                fees.map { fee ->
+                    val feeId = fee[FeeTable.ID] as Int
+                    if (feeCheckBoxesMap[feeId]!!.isChecked) {
+                        db.payFee(newId, feeId)
+                    } else {
+                        db.removeFee(newId, feeId)
                     }
                 }
                 finish()

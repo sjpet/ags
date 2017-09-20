@@ -2,10 +2,11 @@ package se.agslulea.app.ui.activities
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import org.jetbrains.anko.startActivity
+import se.agslulea.app.*
 
-import se.agslulea.app.R
 import se.agslulea.app.data.db.AppDb
 import se.agslulea.app.data.db.GroupTable
 import se.agslulea.app.data.db.MemberMetaTable
@@ -15,8 +16,11 @@ class ListMembersActivity : AppCompatActivity() {
 
     private lateinit var members: List<Map<String, Any>>
     private lateinit var memberList: ListView
+    private var searchQuery: String? = null
 
     private  val db = AppDb()
+
+    private lateinit var groupSpinner: Spinner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,9 +28,11 @@ class ListMembersActivity : AppCompatActivity() {
 
         val adminLevel = intent.getIntExtra("adminLevel", 0)
 
-        val groupSpinner = findViewById(R.id.member_list_group_spinner) as Spinner
+        groupSpinner = findViewById(R.id.member_list_group_spinner) as Spinner
         memberList = findViewById(R.id.member_list_view) as ListView
         val newMemberButton = findViewById(R.id.new_member_button) as Button
+        val pickMembersButton = findViewById(R.id.pick_members_button) as Button
+        val searchBar = findViewById(R.id.member_list_search_bar) as SearchView
 
         val groups = db.getGroupNames()
         groupSpinner.adapter = SimpleAdapter(
@@ -40,11 +46,50 @@ class ListMembersActivity : AppCompatActivity() {
         members = db.getMemberList()
         showMembers()
 
+        // Update filter on selection of group
+        groupSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, pos: Int, id: Long) {
+                val groupSpinnerSelected = groupSpinner.selectedItem as Map<*, *>
+                val selectedGroup = groupSpinnerSelected[GroupTable.ID] as Int
+                pickMembersButton.visibility = if (selectedGroup > 0) { View.VISIBLE } else { View.GONE }
+                pickMembersButton.isClickable = true
+                showMembers()
+            }
+            override fun onNothingSelected(parent: AdapterView<out Adapter>?) {
+                pickMembersButton.visibility = View.GONE
+                pickMembersButton.isClickable = false
+                showMembers()
+            }
+        }
+
+        // Update filter on search bar activity
+        searchBar.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText == "") {
+                    searchQuery = null
+                }
+                showMembers()
+                return false
+            }
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                searchQuery = query
+                showMembers()
+                return false
+            }
+        })
+
+        // Set listeners for adding or editing members
         newMemberButton.setOnClickListener {
             val groupSpinnerSelected = groupSpinner.selectedItem as Map<*, *>
             val preSelectedGroup = groupSpinnerSelected[GroupTable.ID] as Int
             startActivity<AddOrEditMemberActivity>("preSelectedGroup" to preSelectedGroup,
                     "adminLevel" to adminLevel)
+        }
+
+        pickMembersButton.setOnClickListener {
+            val groupSpinnerSelected = groupSpinner.selectedItem as Map<*, *>
+            val groupId = groupSpinnerSelected[GroupTable.ID] as Int
+            startActivity<PickMembersActivity>("what" to GroupTable.NAME, "which" to groupId)
         }
         
         memberList.setOnItemClickListener { _, view, _, _ ->
@@ -62,9 +107,11 @@ class ListMembersActivity : AppCompatActivity() {
     }
 
     private fun showMembers() {
+        val groupSpinnerSelected = groupSpinner.selectedItem as Map <*, *>
+        val selectedGroup = groupSpinnerSelected[GroupTable.ID] as Int
         memberList.adapter = SimpleAdapter(
                 this,
-                members,
+                filterMemberList(members, selectedGroup, searchQuery),
                 R.layout.member_list_item,
                 arrayOf(MemberTable.ID,
                         MemberMetaTable.FULL_NAME,

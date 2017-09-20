@@ -22,9 +22,9 @@ class ModifyTableActivity : AppCompatActivity() {
         setContentView(R.layout.activity_modify_table)
 
         val table = intent.getStringExtra("table")
-        val level = intent.getIntExtra("level", 0)
+        val adminLevel = intent.getIntExtra("adminLevel", 0)
 
-        if (table == null || level < 1) {
+        if (table == null || adminLevel < 1) {
             toast(R.string.action_not_allowed)
             finish()
         }
@@ -77,7 +77,7 @@ class ModifyTableActivity : AppCompatActivity() {
             ActivityTypeTable.NAME -> db.getActivityTypes()
             else -> listOf()
         }
-        if (level == 1) {
+        if (adminLevel == 2) {
             for (row in rows) {
                 addEditRow(tableLayout,
                         stringify(row.dropLast(1)),

@@ -75,6 +75,7 @@ object MemberMetaTable {
     val FULL_NAME = "FullName"
     val DATE_OF_BIRTH = "DateOfBirth"
     val FEES_PAID = "FeesPaid"
+    val GROUPS = ""
 }
 
 object GroupMemberTable {
