@@ -78,5 +78,6 @@
     <string name="invalid_email">Ogiltig E-postaddress</string>
     <string name="edit_group_members">Redigera grupp</string>
     <string name="no_ada">Underskrift saknas</string>
+    <string name="edit_group">Välj medlemmar i grupp:</string>
 
 </resources>

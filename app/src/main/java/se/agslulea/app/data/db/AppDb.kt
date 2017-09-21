@@ -42,6 +42,11 @@ class AppDb(ctx: Context = App.instance,
         }).sortedBy { x -> x[GroupTable.ID] as Int}
     }
 
+    fun getGroupName(groupId: Int) = dbHelper.use {
+        select(GroupTable.NAME, GroupTable.GROUP).whereArgs("${GroupTable.ID} = {groupId}",
+                "groupId" to groupId).parseSingle(StringParser)
+    }
+
     fun getSports() = dbHelper.use {
         select(SportTable.NAME, SportTable.SPORT, SportTable.SHORTHAND,
                 SportTable.IS_ACTIVE).parseList(rowParser {
