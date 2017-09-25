@@ -1,5 +1,6 @@
-package se.agslulea.app
+package se.agslulea.app.helpers
 
+import android.view.ViewGroup
 import se.agslulea.app.data.db.MemberMetaTable
 import java.util.*
 
@@ -11,6 +12,7 @@ val emailRegex = ("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" +
 val yearFrom = "[0-9]{4}-".toRegex()
 val yearTo = "-[0-9]{4}".toRegex()
 val yearRange = "[0-9]{4}-[0-9]{4}".toRegex()
+val timeRegex = "[0-9]{2}:[0-9]{2}".toRegex()
 
 val prepositions = listOf("van", "von", "der", "af", "de", "la", "da")
 
@@ -114,5 +116,15 @@ fun filterMemberList(members: List<Map<String, Any>>,
     } else {
         true
     })
+    }
+}
+
+fun layoutWeight(startTime: String, endTime: String): Float {
+    return if (startTime.matches(timeRegex) && endTime.matches(timeRegex)) {
+        val minutes = 60*(endTime.substring(0..1).toInt() - startTime.substring(0..1).toInt()) +
+                (endTime.substring(3..4).toInt() - startTime.substring(3..4).toInt())
+        if (minutes > 0) { minutes.toFloat() } else { 0f }
+    } else {
+        0f
     }
 }

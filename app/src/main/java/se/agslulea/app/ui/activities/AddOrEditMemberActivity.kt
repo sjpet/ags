@@ -11,6 +11,10 @@ import se.agslulea.app.data.db.AppDb
 import se.agslulea.app.data.db.FeeTable
 import se.agslulea.app.data.db.GroupTable
 import se.agslulea.app.data.db.MemberTable
+import se.agslulea.app.helpers.capitalizeName
+import se.agslulea.app.helpers.formatPersonalId
+import se.agslulea.app.helpers.isValidEmail
+import se.agslulea.app.helpers.isValidPersonalId
 
 class AddOrEditMemberActivity : AppCompatActivity() {
 

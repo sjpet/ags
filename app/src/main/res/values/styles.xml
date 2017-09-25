@@ -42,4 +42,31 @@
         <item name="android:paddingRight">@dimen/large_button_padding</item>
     </style>
 
+    <style name="AlternateButtonStyle" parent="@android:style/Widget.Button">
+        <item name="android:background">@color/lightShade</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+    </style>
+
+    <style name="TimetableHeaderStyle">
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@color/agsGreen</item>
+        <item name="android:layout_margin">@dimen/very_small_margin</item>
+        <item name="android:padding">@dimen/small_margin</item>
+    </style>
+
+    <style name="TimetableHeaderText">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/agsYellow</item>
+    </style>
+
+    <style name="TimetableStripStyle">
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@color/lightestShade</item>
+        <item name="android:layout_margin">@dimen/very_small_margin</item>
+    </style>
+
 </resources>

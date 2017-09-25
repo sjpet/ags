@@ -6,11 +6,13 @@ import android.view.View
 import android.widget.*
 import org.jetbrains.anko.startActivity
 import se.agslulea.app.*
+import se.agslulea.app.classes.Activity
 
 import se.agslulea.app.data.db.AppDb
 import se.agslulea.app.data.db.GroupTable
 import se.agslulea.app.data.db.MemberMetaTable
 import se.agslulea.app.data.db.MemberTable
+import se.agslulea.app.helpers.filterMemberList
 
 class ListMembersActivity : AppCompatActivity() {
 
@@ -124,5 +126,30 @@ class ListMembersActivity : AppCompatActivity() {
                         R.id.member_list_fees_paid,
                         R.id.member_list_signed)
         )
+    }
+}
+
+fun flatActivityList(timetable: Map<Int, Pair<String, List<Activity>>>): List<Activity> =
+    timetable.map { (_, value) ->
+        val (_, activityList) = value
+        activityList
+    }.flatten()
+
+fun timeRange(activityList: List<Activity>): Pair<String, String> {
+    var earliestStart: String? = null
+    var latestEnd: String? = null
+    for (activity in activityList) {
+        if (earliestStart == null || earliestStart > activity.startTime) {
+            earliestStart = activity.startTime
+        }
+        if (latestEnd == null || latestEnd < activity.endTime) {
+            latestEnd = activity.endTime
+        }
+    }
+
+    return if (earliestStart != null && latestEnd != null) {
+        Pair(earliestStart, latestEnd)
+    } else {
+        Pair("00:00", "00:00")
     }
 }

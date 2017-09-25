@@ -45,13 +45,13 @@
         android:layout_weight="1">
 
         <Button
-            android:id="@+id/clock_button"
+            android:id="@+id/stats_button"
             style="@style/LargeButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="@dimen/margin"
-            android:text="@string/clock" />
+            android:text="@string/stats" />
 
         <Button
             android:id="@+id/admin_button"

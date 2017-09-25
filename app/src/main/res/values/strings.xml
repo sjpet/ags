@@ -3,7 +3,7 @@
     <string name="app_name">AGS</string>
     <string name="members">Medlemmar</string>
     <string name="attendance">Närvarorapportera</string>
-    <string name="clock">Rondklocka</string>
+    <string name="stats">Statistik</string>
     <string name="administer">Administrera</string>
     <string name="schedule">Schema</string>
     <string name="database">Databas</string>
@@ -79,5 +79,21 @@
     <string name="edit_group_members">Redigera grupp</string>
     <string name="no_ada">Underskrift saknas</string>
     <string name="edit_group">Välj medlemmar i grupp:</string>
+
+    <!-- Strings related to timetable -->
+    <string name="previous">&lt;</string>
+    <string name="next">&gt;</string>
+    <string name="week_placeholder">2000, vecka 0</string>
+    <string name="date_placeholder">0/0</string>
+    <string name="time_placeholder">00:00</string>
+    <string name="sport_placeholder">Idrott</string>
+    <string name="group_placeholder">Grupp</string>
+    <string name="monday">Måndag</string>
+    <string name="tuesday">Tisdag</string>
+    <string name="wednesday">Onsdag</string>
+    <string name="thursday">Torsdag</string>
+    <string name="friday">Fredag</string>
+    <string name="saturday">Lördag</string>
+    <string name="sunday">Söndag</string>
 
 </resources>

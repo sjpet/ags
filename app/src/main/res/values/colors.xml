@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="background">#FAFAFA</color>
     <color name="colorPrimary">#11764E</color>
     <color name="colorPrimaryDark">#002222</color>
-    <color name="colorAccent">#1565c0</color>
+    <color name="colorAccent">#1565C0</color>
     <color name="agsGreen">#11764E</color>
     <color name="agsYellow">#F8E003</color>
+    <color name="lightestShade">#E9E9E9</color>
+    <color name="lightShade">#C7C7C7</color>
+    <color name="greenShade">#80B39E</color>
 </resources>

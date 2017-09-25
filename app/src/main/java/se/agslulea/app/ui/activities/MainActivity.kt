@@ -12,14 +12,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val members_button = findViewById(R.id.members_button) as Button
-        val admin_button = findViewById(R.id.admin_button) as Button
+        val membersButton = findViewById(R.id.members_button) as Button
+        val activityButton = findViewById(R.id.activity_button) as Button
+        val adminButton = findViewById(R.id.admin_button) as Button
+        val statsButton = findViewById(R.id.stats_button) as Button
 
-        members_button.setOnClickListener {
+        membersButton.setOnClickListener {
             startActivity<ListMembersActivity>("adminLevel" to 0)
         }
-        admin_button.setOnClickListener{
+
+        activityButton.setOnClickListener {
+            startActivity<TimetableActivity>()
+        }
+
+        adminButton.setOnClickListener{
             startActivity<AdminLoginActivity>()
         }
+
+        statsButton.setOnClickListener {
+            startActivity<MyActivity>()
+        }
+
     }
 }

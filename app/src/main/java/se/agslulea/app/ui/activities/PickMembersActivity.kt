@@ -13,7 +13,7 @@ import se.agslulea.app.data.db.AppDb
 import se.agslulea.app.data.db.GroupTable
 import se.agslulea.app.data.db.MemberMetaTable
 import se.agslulea.app.data.db.MemberTable
-import se.agslulea.app.filterMemberList
+import se.agslulea.app.helpers.filterMemberList
 
 class PickMembersActivity : AppCompatActivity() {
 
