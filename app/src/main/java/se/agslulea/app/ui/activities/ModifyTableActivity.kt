@@ -33,16 +33,17 @@ class ModifyTableActivity : AppCompatActivity() {
         val saveButton = findViewById(R.id.table_save_button) as Button
 
         val charWidths = when (table) {
-            GroupTable.NAME -> listOf(30)
+            GroupTable.NAME -> listOf(30, 10)
             SportTable.NAME -> listOf(30, 5)
             FeeTable.NAME -> listOf(30, 5, 5)
-            ActivityTypeTable.NAME -> listOf(30)
+            ActivityTypeTable.NAME -> listOf(30, 10)
             else -> listOf()
         }
 
         val columns = when (table) {
             GroupTable.NAME -> arrayOf(
                     Triple(GroupTable.GROUP, "STRING", getString(R.string.group_name)),
+                    Triple(GroupTable.SHORTHAND, "STRING", getString(R.string.group_shorthand)),
                     Triple(GroupTable.IS_ACTIVE, "INT", getString(R.string.is_active)))
             SportTable.NAME -> arrayOf(
                     Triple(SportTable.SPORT, "STRING", getString(R.string.sport_name)),
@@ -55,6 +56,8 @@ class ModifyTableActivity : AppCompatActivity() {
                     Triple(FeeTable.IS_ACTIVE, "INT", getString(R.string.is_active)))
             ActivityTypeTable.NAME -> arrayOf(
                     Triple(ActivityTypeTable.TYPE, "STRING", getString(R.string.activity_type)),
+                    Triple(ActivityTypeTable.SHORTHAND, "STRING",
+                            getString(R.string.type_shorthand)),
                     Triple(ActivityTypeTable.IS_ACTIVE, "INT", getString(R.string.is_active)))
             else -> arrayOf()
         }
@@ -143,10 +146,10 @@ class ModifyTableActivity : AppCompatActivity() {
                 false) as TableRow
 
         for (column in columns) {
-            val textView = TextView(this)
+            val textView = layoutInflater.inflate(R.layout.table_text_template,
+                    headerRow, false) as TextView
             textView.text = column
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.toFloat())
-            textView.setTypeface(Typeface.DEFAULT_BOLD)
+            textView.typeface = Typeface.DEFAULT_BOLD
             headerRow.addView(textView)
         }
 
@@ -172,7 +175,7 @@ class ModifyTableActivity : AppCompatActivity() {
             columnMap[column] = editText
         }
 
-        val addButton = layoutInflater.inflate(R.layout.button_template, lastRow, false) as Button
+        val addButton = Button(this)
         addButton.text = getString(R.string.row_add)
         lastRow.addView(addButton)
 
@@ -210,9 +213,9 @@ class ModifyTableActivity : AppCompatActivity() {
                 false) as TableRow
 
         for (value in values) {
-            val textView = TextView(this)
+            val textView = layoutInflater.inflate(R.layout.table_text_template,
+                    fixedRow, false) as TextView
             textView.text = value
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.toFloat())
             fixedRow.addView(textView)
         }
 

@@ -1,7 +1,15 @@
 package se.agslulea.app.helpers
 
+import android.content.Context
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.SimpleAdapter
+import android.widget.Spinner
+import android.widget.TableRow
+import se.agslulea.app.R
+import se.agslulea.app.classes.ScheduledActivity
 import se.agslulea.app.data.db.MemberMetaTable
+import java.text.SimpleDateFormat
 import java.util.*
 
 val whitespaceRegex = "\\s+".toRegex()
@@ -17,6 +25,12 @@ val timeRegex = "[0-9]{2}:[0-9]{2}".toRegex()
 val prepositions = listOf("van", "von", "der", "af", "de", "la", "da")
 
 val daysInMonth = listOf(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+
+val listOfDays = listOf(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY,
+        Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY)
+
+val longDateFormat = SimpleDateFormat("yyyy-MM-dd")
+val shortDateFormat = SimpleDateFormat("d/M")
 
 fun capitalizeName(s: String): String {
     return s
@@ -41,8 +55,8 @@ fun isValidPersonalId(s: String): Boolean {
         return false
     }
 
-    val isLeapYear = ((year % 4) == 0  && (((year % 100) > 0) || (year % 400) == 0))
-    val daysThisMonth = daysInMonth[month - 1] + if (isLeapYear && month == 2) { 1 } else { 0 }
+    val daysThisMonth =
+            daysInMonth[month - 1] + if (isLeapYear(year) && month == 2) { 1 } else { 0 }
     if (day !in 1..daysThisMonth) {
         return false
     }
@@ -67,7 +81,7 @@ fun isValidPersonalId(s: String): Boolean {
 fun formatPersonalId(s: String): String {
     val numCharacters = s.length
     if (numCharacters < 10) { return "19000000-0000" }
-    val now = Calendar.getInstance()
+    val now = Calendar.getInstance(Locale("sv", "SE"))
     val yearInCentury = now.get(Calendar.YEAR) % 100
     val givenYear = if (s.substring(0..1).matches(numberRegex)) { s.substring(0..1).toInt() } else { 0 }
     val century = if (givenYear < yearInCentury) { "20" } else { "19" }
@@ -128,3 +142,95 @@ fun layoutWeight(startTime: String, endTime: String): Float {
         0f
     }
 }
+
+fun weeksInYear(year: Int): Int {
+    val calendar = Calendar.getInstance(Locale("sv", "SE"))
+    calendar.set(Calendar.YEAR, year)
+    calendar.set(Calendar.MONTH, Calendar.DECEMBER)
+    calendar.set(Calendar.DAY_OF_MONTH, 31)
+    val weekday = calendar.get(Calendar.DAY_OF_WEEK)
+    return if (weekday == Calendar.THURSDAY || (isLeapYear(year) && weekday == Calendar.FRIDAY)) {
+        53
+    } else {
+        52
+    }
+}
+
+private fun isLeapYear(year: Int): Boolean =
+        ((year % 4) == 0  && (((year % 100) > 0) || (year % 400) == 0))
+
+fun calendarAt(year: Int, week: Int, weekday: Int): Calendar {
+    val calendar = Calendar.getInstance(Locale("sv", "SE"))
+    calendar.set(Calendar.DAY_OF_WEEK, weekday)
+    calendar.set(Calendar.WEEK_OF_YEAR, week)
+    calendar.set(Calendar.YEAR, year)
+    return calendar
+}
+
+fun flatActivityList(timetable: Map<Int, Pair<String, List<ScheduledActivity>>>): List<ScheduledActivity> =
+        timetable.map { (_, value) ->
+            val (_, activityList) = value
+            activityList
+        }.flatten()
+
+fun timeRange(activityList: List<ScheduledActivity>): Pair<String, String> {
+    var earliestStart: String? = null
+    var latestEnd: String? = null
+    for (activity in activityList) {
+        if (earliestStart == null || earliestStart > activity.startTime) {
+            earliestStart = activity.startTime
+        }
+        if (latestEnd == null || latestEnd < activity.endTime) {
+            latestEnd = activity.endTime
+        }
+    }
+
+    return if (earliestStart != null && latestEnd != null) {
+        Pair(earliestStart, latestEnd)
+    } else {
+        Pair("00:00", "00:00")
+    }
+}
+
+private fun splitTime(time: String) =
+        Pair(time.substring(0..1).toInt(), time.substring(3..4).toInt())
+
+fun addTime(time: String, addedTime: String) =
+    if (addedTime.matches(timeRegex) && addedTime.matches(timeRegex)) {
+        val (hours, minutes) = splitTime(time)
+        val (addedHours, addedMinutes) = splitTime(addedTime)
+        "%02d:%02d".format(
+                hours + addedHours + if (minutes + addedMinutes > 59) { 1 } else { 0 } % 24,
+                (minutes + addedMinutes) % 60)
+    } else {
+        time
+    }
+
+fun addEditText(ctx: Context,
+                row: TableRow,
+                inputType: Int,
+                ems: Int,
+                default: String,
+                singleLine: Boolean = true): EditText {
+    val editText = EditText(ctx)
+    editText.setEms(ems)
+    editText.setText(default)
+    editText.inputType = inputType
+    editText.setSingleLine(singleLine)
+    row.addView(editText)
+    return editText
+}
+
+fun addSpinner(ctx: Context,
+               row: TableRow,
+               items: List<Map<String, Any?>>,
+               keys: Array<String>,
+               selection: Int): Spinner {
+    val spinner = Spinner(ctx)
+    spinner.adapter = SimpleAdapter(
+            ctx, items, R.layout.id_string_item, keys, intArrayOf(R.id.item_id, R.id.item_name))
+    spinner.setSelection(items.map { x -> x[keys[0]] as Int }.indexOf(selection))
+    row.addView(spinner)
+    return spinner
+}
+

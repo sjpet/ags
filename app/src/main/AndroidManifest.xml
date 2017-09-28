@@ -37,7 +37,10 @@
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".ui.activities.PickMembersActivity" />
         <activity android:name=".ui.activities.TimetableActivity" />
-        <activity android:name=".ui.activities.MyActivity"></activity>
+        <activity android:name=".ui.activities.MyActivity" />
+        <activity
+            android:name=".ui.activities.EditTimetableActivity"
+            android:windowSoftInputMode="stateHidden" />
     </application>
 
 </manifest>

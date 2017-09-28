@@ -21,6 +21,7 @@ object ActivityTypeTable {
     val NAME = "ActivityTypes"
     val ID ="_id"
     val TYPE = "Type"
+    val SHORTHAND = "Shorthand"
     val IS_ACTIVE = "IsActive"
 }
 
@@ -30,18 +31,6 @@ object ActivityParticipantsTable {
     val ACTIVITY = "ActivityId"
     val MEMBER = "MemberId"
     val IS_LEADER = "IsLeader"
-}
-
-object ClassesTable {
-    val NAME = "Classes"
-    val ID = "_id"
-    val SPORT = "SportId"
-    val GROUP = "GroupId"
-    val WEEKDAY = "Weekday"
-    val START = "StartTime"
-    val END = "EndTime"
-    val FROM_DATE = "FirstDate"
-    val TO_DATE = "LastDate"
 }
 
 object SportTable {
@@ -56,6 +45,7 @@ object GroupTable {
     val NAME = "Groups"
     val ID = "_id"
     val GROUP = "GroupName"
+    val SHORTHAND = "Shorthand"
     val IS_ACTIVE = "IsActive"
 }
 
@@ -101,4 +91,29 @@ object PaidFeesTable {
     val MEMBER = "MemberId"
     val FEE = "FeeId"
     val VALID_UNTIL = "ValidUntil"
+}
+
+object TimetableTable {
+    val NAME = "Timetables"
+    val ID = "_id"
+    val WEEKDAY = "Weekday"
+    val FROM_DATE = "FirstDate"
+    val LAST_DATE = "LastDate"
+}
+
+object TimetableJunctionTable {
+    val NAME = "TimetableJunctions"
+    val ID = "_id"
+    val TIMETABLE = "TimetableId"
+    val CLASS = "ClassId"
+}
+
+object ClassesTable {
+    val NAME = "Classes"
+    val ID = "_id"
+    val TYPE = "ActivityTypeId"
+    val SPORT = "SportId"
+    val GROUP = "GroupId"
+    val START = "StartTime"
+    val END = "EndTime"
 }

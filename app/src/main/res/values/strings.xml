@@ -13,6 +13,7 @@
     <string name="generic_name">Samtliga</string>
     <string name="add">Lägg till</string>
     <string name="save_changes">Spara ändringar</string>
+    <string name="remove">Ta bort</string>
 
     <!-- Strings related to login -->
     <string name="password">Lösenord</string>
@@ -48,9 +49,11 @@
     <string name="is_active">Aktiv</string>
     <string name="invalid_table">Ogiltig tabell</string>
     <string name="group_name">Grupp</string>
+    <string name="group_shorthand">Visningsnamn i schema</string>
     <string name="sport_name">Idrott</string>
     <string name="sport_shorthand">Kortform</string>
     <string name="activity_type">Aktivitetstyp</string>
+    <string name="type_shorthand">Visningsnamn i schema</string>
     <string name="fee_name">Avgiftstyp</string>
     <string name="fee_shorthand">Kortform</string>
     <string name="fee_periodicity">Periodicitet</string>
@@ -95,5 +98,18 @@
     <string name="friday">Fredag</string>
     <string name="saturday">Lördag</string>
     <string name="sunday">Söndag</string>
+    <string name="edit_timetable">Ändra</string>
+    <string name="save_timetable">Spara schema</string>
+    <string name="add_unlisted_activity">Rapportera icke schemalagd aktivitet</string>
+    <string name="timetable_title">Vecka %1$d, %2$d</string>
+    <string name="timetable_activity_type">Typ</string>
+    <string name="timetable_sport">Idrott</string>
+    <string name="timetable_group">Grupp</string>
+    <string name="timetable_start">Starttid</string>
+    <string name="timetable_end">Sluttid</string>
+    <string name="valid_from">Gäller fr o m</string>
+    <string name="valid_through">Gäller t o m</string>
+
+
 
 </resources>

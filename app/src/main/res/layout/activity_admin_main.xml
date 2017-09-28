@@ -26,7 +26,7 @@
             tools:ignore="NestedWeights" />
 
         <Button
-            android:id="@+id/schedule_button"
+            android:id="@+id/admin_timetable_button"
             style="@style/LargeButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

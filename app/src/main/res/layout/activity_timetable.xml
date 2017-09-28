@@ -15,25 +15,27 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical">
 
-        <Button
+        <ImageButton
+            android:id="@+id/previous_week_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/AlternateButtonStyle"
-            android:text="@string/previous"/>
+            android:src="@drawable/ic_arrow_back_black_24dp" />
 
         <TextView
+            android:id="@+id/timetable_week_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/week_placeholder"
+            android:text=""
             android:layout_marginLeft="@dimen/margin"
             android:layout_marginRight="@dimen/margin"
             android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-        <Button
+        <ImageButton
+            android:id="@+id/next_week_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/AlternateButtonStyle"
-            android:text="@string/next"/>
+            android:src="@drawable/ic_arrow_forward_black_24dp" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -248,12 +250,71 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/edit_timetable_button_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/margin">
+
+        <Button
+            android:id="@+id/monday_edit_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/edit_timetable"/>
+
+        <Button
+            android:id="@+id/tuesday_edit_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/edit_timetable"/>
+
+        <Button
+            android:id="@+id/wednesday_edit_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/edit_timetable"/>
+
+        <Button
+            android:id="@+id/thursday_edit_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/edit_timetable"/>
+
+        <Button
+            android:id="@+id/friday_edit_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/edit_timetable"/>
+
+        <Button
+            android:id="@+id/saturday_edit_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/edit_timetable"/>
+
+        <Button
+            android:id="@+id/sunday_edit_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/edit_timetable"/>
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/new_activity_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin"
-        style="@style/ButtonStyle"
-        android:text="@string/action_not_allowed"/>
+        android:visibility="visible"
+        android:text="@string/add_unlisted_activity"/>
 
 </LinearLayout>

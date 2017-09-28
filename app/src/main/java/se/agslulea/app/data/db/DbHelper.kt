@@ -13,7 +13,7 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
 
     companion object {
         val DB_NAME = "ags.db"
-        val DB_VERSION = 4
+        val DB_VERSION = 8
         val instance by lazy { DbHelper() }
     }
 
@@ -35,6 +35,7 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
         db.createTable(ActivityTypeTable.NAME, true,
                 ActivityTypeTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,
                 ActivityTypeTable.TYPE to TEXT + UNIQUE,
+                ActivityTypeTable.SHORTHAND to TEXT,
                 ActivityTypeTable.IS_ACTIVE to INTEGER)
 
         db.createTable(ActivityParticipantsTable.NAME, true,
@@ -54,9 +55,10 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
         db.createTable(GroupTable.NAME, true,
                 GroupTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,
                 GroupTable.GROUP to TEXT + UNIQUE,
+                GroupTable.SHORTHAND to TEXT,
                 GroupTable.IS_ACTIVE to INTEGER)
         db.insert(GroupTable.NAME, GroupTable.ID to 0, GroupTable.GROUP to genericName,
-                GroupTable.IS_ACTIVE to 1)
+                GroupTable.SHORTHAND to "", GroupTable.IS_ACTIVE to 1)
 
         db.createTable(MemberTable.NAME, true,
                 MemberTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,
@@ -87,20 +89,31 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
                 PaidFeesTable.FEE to INTEGER,
                 PaidFeesTable.VALID_UNTIL to TEXT)
 
+        db.createTable(TimetableTable.NAME, true,
+                TimetableTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,
+                TimetableTable.WEEKDAY to INTEGER,
+                TimetableTable.FROM_DATE to TEXT,
+                TimetableTable.LAST_DATE to TEXT)
+
         db.createTable(ClassesTable.NAME, true,
                 ClassesTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,
+                ClassesTable.TYPE to INTEGER,
                 ClassesTable.SPORT to INTEGER,
                 ClassesTable.GROUP to INTEGER,
-                ClassesTable.WEEKDAY to TEXT,
                 ClassesTable.START to TEXT,
-                ClassesTable.END to TEXT,
-                ClassesTable.FROM_DATE to TEXT,
-                ClassesTable.TO_DATE to TEXT)
+                ClassesTable.END to TEXT)
+
+        db.createTable(TimetableJunctionTable.NAME, true,
+                TimetableJunctionTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,
+                TimetableJunctionTable.TIMETABLE to INTEGER,
+                TimetableJunctionTable.CLASS to INTEGER)
 
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
 
+        db.dropTable(ActivityTypeTable.NAME, true)
+        onCreate(db)
         /* db.dropTable(PasswordsTable.NAME, true)
         db.dropTable(ActivityTable.NAME, true)
         db.dropTable(ActivityTypeTable.NAME, true)
