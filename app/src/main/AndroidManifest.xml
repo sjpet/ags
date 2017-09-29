@@ -41,6 +41,11 @@
         <activity
             android:name=".ui.activities.EditTimetableActivity"
             android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ui.activities.NewActivityActivity"
+            android:label="@string/new_activity"
+            android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".ui.activities.RollCallActivity"/>
     </application>
 
 </manifest>

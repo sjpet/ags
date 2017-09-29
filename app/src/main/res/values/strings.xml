@@ -14,6 +14,9 @@
     <string name="add">Lägg till</string>
     <string name="save_changes">Spara ändringar</string>
     <string name="remove">Ta bort</string>
+    <string name="group">Grupp</string>
+    <string name="sport">Idrott</string>
+    <string name="activity_type">Aktivitetstyp</string>
 
     <!-- Strings related to login -->
     <string name="password">Lösenord</string>
@@ -52,7 +55,6 @@
     <string name="group_shorthand">Visningsnamn i schema</string>
     <string name="sport_name">Idrott</string>
     <string name="sport_shorthand">Kortform</string>
-    <string name="activity_type">Aktivitetstyp</string>
     <string name="type_shorthand">Visningsnamn i schema</string>
     <string name="fee_name">Avgiftstyp</string>
     <string name="fee_shorthand">Kortform</string>
@@ -110,6 +112,19 @@
     <string name="valid_from">Gäller fr o m</string>
     <string name="valid_through">Gäller t o m</string>
 
+    <!-- Strings related to new activities and roll calls -->
+    <string name="roll_call_title_template">Närvarande %1$s %2$s-%3$s (%4$s)</string>
+    <string name="new_activity">Ny aktivitet</string>
+    <string name="date">Datum</string>
+    <string name="start_time">Startid</string>
+    <string name="end_time">Sluttid</string>
+    <string name="proceed_to_roll_call">Rapportera närvaro</string>
+    <string name="invalid_date">Ogiltigt datum</string>
+    <string name="invalid_start_time">Ogiltig starttid</string>
+    <string name="invalid_end_time">Ogiltig sluttid</string>
+    <string name="save_roll_call">Spara närvarorapport</string>
+    <string name="present_slash_leader">Närv./Ledare</string>
+    <string name="number_picked">%1$d vald%2$s, varav %3$d ledare</string>
 
 
 </resources>

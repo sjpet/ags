@@ -5,10 +5,7 @@ import org.jetbrains.anko.db.*
 import se.agslulea.app.R
 import se.agslulea.app.classes.Activity
 import se.agslulea.app.classes.ScheduledActivity
-import se.agslulea.app.helpers.calendarAt
-import se.agslulea.app.helpers.listOfDays
-import se.agslulea.app.helpers.longDateFormat
-import se.agslulea.app.helpers.shortDateFormat
+import se.agslulea.app.helpers.*
 import se.agslulea.app.ui.App
 import java.util.*
 
@@ -66,6 +63,11 @@ class AppDb(ctx: Context = App.instance,
                 }).sortedBy { x -> x[SportTable.ID] as Int}
     }
 
+    fun getSportShorthand(sportId: Int) = dbHelper.use {
+        select(SportTable.NAME, SportTable.SHORTHAND).whereArgs("${SportTable.ID} = {sportId}",
+                "sportId" to sportId).parseSingle(StringParser)
+    }
+
     fun getFees() = dbHelper.use {
         select(FeeTable.NAME, FeeTable.FEE, FeeTable.KEY, FeeTable.PERIOD,
                 FeeTable.IS_ACTIVE).parseList(rowParser {
@@ -119,6 +121,12 @@ class AppDb(ctx: Context = App.instance,
                     id: Int, activityType: String ->
                     mapOf(ActivityTypeTable.ID to id, ActivityTypeTable.TYPE to activityType)
                 }).sortedBy { x -> x[ActivityTypeTable.ID] as Int}
+    }
+
+    fun getActivityTypeName(typeId: Int) = dbHelper.use {
+        select(ActivityTypeTable.NAME, ActivityTypeTable.TYPE)
+                .whereArgs("${ActivityTypeTable.ID} = {typeId}", "typeId" to typeId)
+                .parseSingle(StringParser)
     }
 
     private fun nextFreeId(tableName: String, idColumn: String): Int {
@@ -376,6 +384,23 @@ class AppDb(ctx: Context = App.instance,
                     ScheduledActivity(
                             classId, typeId, sportId, groupId, startTime, endTime)
                 })
+    }
+
+    fun ongoingActivity(): ScheduledActivity? {
+        val now = Calendar.getInstance(Locale("sv", "SE"))
+        val nowTime = timeFormat.format(now.time)
+        val timetable = getTimetableEntry(now.get(Calendar.YEAR), now.get(Calendar.WEEK_OF_YEAR),
+                now.get(Calendar.DAY_OF_WEEK))
+        return if (timetable == null) {
+            null
+        } else {
+            val activityList = getActivityList(timetable[TimetableTable.ID] as Int).filter {
+                activity ->
+                activity.startTime <= addTime(nowTime, "00:10") &&
+                        addTime(activity.endTime, "00:10") >= nowTime
+            }
+            activityList[-1]
+        }
     }
 
     fun newTimetable(weekday: Int, fromDate: String, toDate: String): Int {

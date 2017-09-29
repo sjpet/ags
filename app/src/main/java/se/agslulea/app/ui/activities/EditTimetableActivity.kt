@@ -68,18 +68,23 @@ class EditTimetableActivity : AppCompatActivity() {
             }
             fromDateEditText.setText(timetableEntry[TimetableTable.FROM_DATE] as String)
             toDateEditText.setText(timetableEntry[TimetableTable.LAST_DATE] as String)
+            val (_, latestTime) = timeRange(activityList)
+            addLastRow(latestTime, addTime(latestTime, "01:00"))
         } else {
             val calendar = calendarAt(year, week, weekday)
             val today = longDateFormat.format(calendar.time)
             fromDateEditText.setText(today)
             toDateEditText.setText(today)
+            addLastRow()
         }
-
-        addLastRow()
 
         saveButton.setOnClickListener {
             val fromDate = fromDateEditText.text.toString()
             val toDate = toDateEditText.text.toString()
+
+            saveButton.setFocusable(true)
+            saveButton.setFocusableInTouchMode(true)
+            saveButton.requestFocus()
 
             if (timetableEntry == null ||
                     timetableEntry[TimetableTable.FROM_DATE] != fromDate ||

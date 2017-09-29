@@ -1,7 +1,6 @@
 package se.agslulea.app.helpers
 
 import android.content.Context
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.SimpleAdapter
 import android.widget.Spinner
@@ -9,6 +8,7 @@ import android.widget.TableRow
 import se.agslulea.app.R
 import se.agslulea.app.classes.ScheduledActivity
 import se.agslulea.app.data.db.MemberMetaTable
+import se.agslulea.app.data.db.MemberTable
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,6 +20,7 @@ val emailRegex = ("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" +
 val yearFrom = "[0-9]{4}-".toRegex()
 val yearTo = "-[0-9]{4}".toRegex()
 val yearRange = "[0-9]{4}-[0-9]{4}".toRegex()
+val dateRegex = "[0-9]{4}-[0-9]{2}-[0-9]{2}".toRegex()
 val timeRegex = "[0-9]{2}:[0-9]{2}".toRegex()
 
 val prepositions = listOf("van", "von", "der", "af", "de", "la", "da")
@@ -31,6 +32,7 @@ val listOfDays = listOf(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, C
 
 val longDateFormat = SimpleDateFormat("yyyy-MM-dd")
 val shortDateFormat = SimpleDateFormat("d/M")
+val timeFormat = SimpleDateFormat("HH:mm")
 
 fun capitalizeName(s: String): String {
     return s
@@ -46,20 +48,8 @@ fun isValidPersonalId(s: String): Boolean {
         return false
     }
 
-    // Validate date
-    val year = s.substring(0..3).toInt()
-    val month = s.substring(4..5).toInt()
-    val day = s.substring(6..7).toInt()
-
-    if (month !in 1..12) {
-        return false
-    }
-
-    val daysThisMonth =
-            daysInMonth[month - 1] + if (isLeapYear(year) && month == 2) { 1 } else { 0 }
-    if (day !in 1..daysThisMonth) {
-        return false
-    }
+    val date = s.substring(0..3) + "-" + s.substring(4..5) + "-" + s.substring(6..7)
+    if (!isValidDate(date)) { return false }
 
     // Validate control digit
     val sReduced = s.substring(2..7) + s.substring(9..11)
@@ -96,10 +86,12 @@ fun formatPersonalId(s: String): String {
 
 fun filterMemberList(members: List<Map<String, Any>>,
                      selectedGroup: Int,
-                     searchQuery: String?): List<Map<String, Any>> {
+                     searchQuery: String?,
+                     omnipresent: Set<Int> = setOf()): List<Map<String, Any>> {
     return members.filter {
-        member -> (if (selectedGroup > 0) {
-        selectedGroup in member[MemberMetaTable.GROUPS] as List<Int>
+        member -> (if (selectedGroup > 0 && searchQuery == null) {
+        selectedGroup in member[MemberMetaTable.GROUPS] as List<Int> ||
+                member[MemberTable.ID] as Int in omnipresent
     } else {
         true
     } && if (searchQuery != null) {
@@ -125,7 +117,8 @@ fun filterMemberList(members: List<Map<String, Any>>,
                 (member[MemberMetaTable.DATE_OF_BIRTH] as String)
                         .substring(0..3).toInt() in (fromYear..toYear)
             }
-            else -> searchQuery in (member[MemberMetaTable.FULL_NAME] as String)
+            else -> searchQuery in (member[MemberMetaTable.FULL_NAME] as String) ||
+                    searchQuery in (member[MemberMetaTable.DATE_OF_BIRTH] as String)
         }
     } else {
         true
@@ -206,6 +199,13 @@ fun addTime(time: String, addedTime: String) =
         time
     }
 
+fun getNearestQuarter(): String {
+    val now = Calendar.getInstance(Locale("sv", "SE"))
+    val (hours, minutes) = splitTime(timeFormat.format(now.time))
+    return "%02d:%02d".format((hours + if (minutes > 51) { 1 } else { 0 }) % 24,
+            (((minutes + 8) / 15) % 4) * 15)
+}
+
 fun addEditText(ctx: Context,
                 row: TableRow,
                 inputType: Int,
@@ -225,12 +225,48 @@ fun addSpinner(ctx: Context,
                row: TableRow,
                items: List<Map<String, Any?>>,
                keys: Array<String>,
-               selection: Int): Spinner {
+               selection: Int = 1): Spinner {
     val spinner = Spinner(ctx)
-    spinner.adapter = SimpleAdapter(
-            ctx, items, R.layout.id_string_item, keys, intArrayOf(R.id.item_id, R.id.item_name))
-    spinner.setSelection(items.map { x -> x[keys[0]] as Int }.indexOf(selection))
+    setSpinnerAdapter(ctx, spinner, items, keys, selection)
     row.addView(spinner)
     return spinner
 }
 
+fun setSpinnerAdapter(ctx: Context,
+                      spinner: Spinner,
+                      items: List<Map<String, Any?>>,
+                      keys: Array<String>,
+                      selection: Int = 1) {
+    spinner.adapter = SimpleAdapter(
+            ctx, items, R.layout.id_string_item, keys, intArrayOf(R.id.item_id, R.id.item_name))
+    spinner.setSelection(items.map { x -> x[keys[0]] as Int }.indexOf(selection))
+}
+
+fun isValidDate(date: String): Boolean = if (date.matches(dateRegex)) {
+    val year = date.substring(0..3).toInt()
+    val month = date.substring(5..6).toInt()
+    val day = date.substring(8..9).toInt()
+
+    var isValid = true
+    if (month !in 1..12) {
+        isValid = false
+    }
+
+    val daysThisMonth =
+            daysInMonth[month - 1] + if (isLeapYear(year) && month == 2) { 1 } else { 0 }
+    if (day !in 1..daysThisMonth) {
+        isValid = false
+    }
+
+    isValid
+
+} else {
+    false
+}
+
+fun isValidTime(time: String): Boolean = if (time.matches(timeRegex)) {
+    val (hours, minutes) = splitTime(time)
+    hours in 0..23 && minutes in 0..59
+} else {
+    false
+}
