@@ -6,7 +6,7 @@ import android.widget.SimpleAdapter
 import android.widget.Spinner
 import android.widget.TableRow
 import se.agslulea.app.R
-import se.agslulea.app.classes.ScheduledActivity
+import se.agslulea.app.classes.TimetableActivity
 import se.agslulea.app.data.db.MemberMetaTable
 import se.agslulea.app.data.db.MemberTable
 import java.text.SimpleDateFormat
@@ -160,13 +160,13 @@ fun calendarAt(year: Int, week: Int, weekday: Int): Calendar {
     return calendar
 }
 
-fun flatActivityList(timetable: Map<Int, Pair<String, List<ScheduledActivity>>>): List<ScheduledActivity> =
-        timetable.map { (_, value) ->
-            val (_, activityList) = value
+fun flatActivityList(timetable: Map<Int, Triple<String, String, List<TimetableActivity>>>):
+        List<TimetableActivity> = timetable.map { (_, value) ->
+            val (_, _, activityList) = value
             activityList
         }.flatten()
 
-fun timeRange(activityList: List<ScheduledActivity>): Pair<String, String> {
+fun timeRange(activityList: List<TimetableActivity>): Pair<String, String> {
     var earliestStart: String? = null
     var latestEnd: String? = null
     for (activity in activityList) {

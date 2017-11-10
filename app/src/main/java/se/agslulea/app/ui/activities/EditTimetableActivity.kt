@@ -8,7 +8,7 @@ import android.view.View
 import android.widget.*
 
 import se.agslulea.app.R
-import se.agslulea.app.classes.ScheduledActivity
+import se.agslulea.app.classes.TimetableActivity
 import se.agslulea.app.data.db.*
 import se.agslulea.app.helpers.*
 
@@ -17,11 +17,11 @@ class EditTimetableActivity : AppCompatActivity() {
     private var tableLayout: TableLayout? = null
     val db = AppDb()
 
-    private val inserts: MutableList<ScheduledActivity> = mutableListOf()
+    private val inserts: MutableList<TimetableActivity> = mutableListOf()
     private val removals: MutableList<Int> = mutableListOf()
-    private val updates: MutableMap<Int, ScheduledActivity> = mutableMapOf()
+    private val updates: MutableMap<Int, TimetableActivity> = mutableMapOf()
 
-    private var activityList: List<ScheduledActivity> = listOf()
+    private var activityList: List<TimetableActivity> = listOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,8 +82,8 @@ class EditTimetableActivity : AppCompatActivity() {
             val fromDate = fromDateEditText.text.toString()
             val toDate = toDateEditText.text.toString()
 
-            saveButton.setFocusable(true)
-            saveButton.setFocusableInTouchMode(true)
+            saveButton.isFocusable = true
+            saveButton.isFocusableInTouchMode = true
             saveButton.requestFocus()
 
             if (timetableEntry == null ||
@@ -116,7 +116,7 @@ class EditTimetableActivity : AppCompatActivity() {
 
     }
 
-    private fun addRow(activity: ScheduledActivity) {
+    private fun addRow(activity: TimetableActivity) {
 
         val row = layoutInflater.inflate(R.layout.table_row_template, tableLayout,
                 false) as TableRow
@@ -134,28 +134,28 @@ class EditTimetableActivity : AppCompatActivity() {
 
         setCustomListener(typeSpinner, activity,
                 { (typeSpinner.selectedItem as Map<*, *>)[ActivityTypeTable.ID] as Int },
-                { a: ScheduledActivity -> a.type },
-                { a: ScheduledActivity?, b: Any -> a?.type = b as Int})
+                { a: TimetableActivity -> a.type },
+                { a: TimetableActivity?, b: Any -> a?.type = b as Int})
 
         setCustomListener(sportSpinner, activity,
                 { (sportSpinner.selectedItem as Map<*, *>)[SportTable.ID] as Int },
-                { a: ScheduledActivity -> a.sport },
-                { a: ScheduledActivity?, b: Any -> a?.sport = b as Int})
+                { a: TimetableActivity -> a.sport },
+                { a: TimetableActivity?, b: Any -> a?.sport = b as Int})
 
         setCustomListener(groupSpinner, activity,
                 { (groupSpinner.selectedItem as Map<*, *>)[GroupTable.ID] as Int },
-                { a: ScheduledActivity -> a.group },
-                { a: ScheduledActivity?, b: Any -> a?.group = b as Int})
+                { a: TimetableActivity -> a.group },
+                { a: TimetableActivity?, b: Any -> a?.group = b as Int})
 
         setCustomListener(startTimeText, activity,
                 { startTimeText.text.toString() },
-                { a: ScheduledActivity -> a.startTime},
-                { a: ScheduledActivity?, b: Any -> a?.startTime = b as String})
+                { a: TimetableActivity -> a.startTime},
+                { a: TimetableActivity?, b: Any -> a?.startTime = b as String})
 
         setCustomListener(endTimeText, activity,
                 { endTimeText.text.toString() },
-                { a: ScheduledActivity -> a.endTime},
-                { a: ScheduledActivity?, b: Any -> a?.endTime = b as String})
+                { a: TimetableActivity -> a.endTime},
+                { a: TimetableActivity?, b: Any -> a?.endTime = b as String})
 
         val removeButton = Button(this)
         removeButton.text = getString(R.string.remove)
@@ -172,7 +172,8 @@ class EditTimetableActivity : AppCompatActivity() {
         tableLayout?.addView(row)
     }
 
-    private fun addLastRow(startTime: String = "18:00", endTime: String = "19:00") {
+    private fun addLastRow(suggestedStartTime: String = "18:00",
+                           suggestedEndTime: String = "19:00") {
         val lastRow = layoutInflater.inflate(R.layout.table_row_template, tableLayout,
                 false) as TableRow
 
@@ -183,10 +184,9 @@ class EditTimetableActivity : AppCompatActivity() {
         val groupSpinner = addSpinner(this, lastRow, db.getGroupNames(),
                 arrayOf(GroupTable.ID, GroupTable.GROUP), 1)
         val startTimeText = addEditText(
-                this, lastRow, InputType.TYPE_DATETIME_VARIATION_TIME, 5, startTime)
+                this, lastRow, InputType.TYPE_DATETIME_VARIATION_TIME, 5, suggestedStartTime)
         val endTimeText = addEditText(
-                this, lastRow, InputType.TYPE_DATETIME_VARIATION_TIME, 5, endTime)
-
+                this, lastRow, InputType.TYPE_DATETIME_VARIATION_TIME, 5, suggestedEndTime)
 
         val addButton = Button(this)
         addButton.text = getString(R.string.row_add)
@@ -200,7 +200,9 @@ class EditTimetableActivity : AppCompatActivity() {
             val startTime = startTimeText.text.toString()
             val endTime = endTimeText.text.toString()
 
-            val activity = ScheduledActivity(-1, typeId, sportId, groupId, startTime, endTime)
+            val activity =
+                    TimetableActivity(-1, typeId, sportId, groupId, startTime, endTime, false,
+                            false)
 
             inserts.add(activity)
 
@@ -214,10 +216,10 @@ class EditTimetableActivity : AppCompatActivity() {
     }
 
     private fun setCustomListener(view: View,
-                                  activity: ScheduledActivity,
+                                  activity: TimetableActivity,
                                   getter: () -> Any,
-                                  originalGetter: (a: ScheduledActivity) -> Any,
-                                  setter: (a: ScheduledActivity?, v: Any) -> Unit) {
+                                  originalGetter: (a: TimetableActivity) -> Any,
+                                  setter: (a: TimetableActivity?, v: Any) -> Unit) {
         if (view is EditText) {
             view.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
@@ -227,9 +229,9 @@ class EditTimetableActivity : AppCompatActivity() {
                             setter(activity, newValue)
                         } else {
                             if (activity.id !in updates) {
-                                updates[activity.id] = ScheduledActivity(activity.id, activity.type,
+                                updates[activity.id] = TimetableActivity(activity.id, activity.type,
                                         activity.sport, activity.group, activity.startTime,
-                                        activity.endTime)
+                                        activity.endTime, false, false)
                             }
                             setter(updates[activity.id], newValue)
                         }
@@ -246,9 +248,9 @@ class EditTimetableActivity : AppCompatActivity() {
                             setter(activity, newValue)
                         } else {
                             if (activity.id !in updates) {
-                                updates[activity.id] = ScheduledActivity(activity.id, activity.type,
+                                updates[activity.id] = TimetableActivity(activity.id, activity.type,
                                         activity.sport, activity.group, activity.startTime,
-                                        activity.endTime)
+                                        activity.endTime, false, false)
                             }
                             setter(updates[activity.id], newValue)
                         }

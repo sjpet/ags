@@ -50,7 +50,6 @@
 
         <Button
             android:id="@+id/pick_members_button"
-            style="@style/ButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin"
@@ -60,7 +59,6 @@
 
         <Button
             android:id="@+id/new_member_button"
-            style="@style/ButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin"

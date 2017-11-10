@@ -8,9 +8,11 @@ class Activity(val type: Int,
                val startTime: String,
                val endTime: String)
 
-class ScheduledActivity(val id: Int,
+class TimetableActivity(val id: Int,
                         var type: Int,
                         var sport: Int,
                         var group: Int,
                         var startTime: String,
-                        var endTime: String)
+                        var endTime: String,
+                        var isReported: Boolean,
+                        var replacesScheduled: Boolean)

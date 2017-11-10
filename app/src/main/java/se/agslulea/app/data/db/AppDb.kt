@@ -3,8 +3,7 @@ package se.agslulea.app.data.db
 import android.content.Context
 import org.jetbrains.anko.db.*
 import se.agslulea.app.R
-import se.agslulea.app.classes.Activity
-import se.agslulea.app.classes.ScheduledActivity
+import se.agslulea.app.classes.TimetableActivity
 import se.agslulea.app.helpers.*
 import se.agslulea.app.ui.App
 import java.util.*
@@ -28,6 +27,21 @@ class AppDb(ctx: Context = App.instance,
     fun updatePassword(level: Int, key: String) = dbHelper.use {
         update(PasswordsTable.NAME, PasswordsTable.KEY to key).whereArgs(
                 "${PasswordsTable.LEVEL} = {level}", "level" to level).exec()
+    }
+
+    fun getColours() = dbHelper.use {
+        select(ColourTable.NAME, ColourTable.ID, ColourTable.COLOUR, ColourTable.VALUE)
+                .parseList(rowParser {
+                    id: Int, colourName: String, colourValue: Int ->
+                    mapOf(ColourTable.ID to id, ColourTable.COLOUR to colourName,
+                            ColourTable.VALUE to colourValue)
+                })
+    }
+
+    fun getColourValue(colourId: Int): Int = dbHelper.use {
+        select(ColourTable.NAME, ColourTable.VALUE)
+                .whereArgs("${ColourTable.ID} = {colourId}", "colourId" to colourId)
+                .parseSingle(IntParser)
     }
 
     fun getGroups() = dbHelper.use {
@@ -109,8 +123,8 @@ class AppDb(ctx: Context = App.instance,
 
     fun getActivityTypes() = dbHelper.use {
         select(ActivityTypeTable.NAME, ActivityTypeTable.TYPE, ActivityTypeTable.SHORTHAND,
-                ActivityTypeTable.IS_ACTIVE).parseList(rowParser {
-            a: String, b: String, c: Int -> listOf(a, b, c)
+                ActivityTypeTable.COLOUR, ActivityTypeTable.IS_ACTIVE).parseList(rowParser {
+            a: String, b: String, c: Int, d :Int -> listOf(a, b, c, d)
         })
     }
 
@@ -320,7 +334,8 @@ class AppDb(ctx: Context = App.instance,
                 "today" to longDateFormat.format(now.time))
     }
 
-    fun getTimetable(year: Int, week: Int): Map<Int, Pair<String, List<ScheduledActivity>>> {
+    fun getTimetable(year: Int, week: Int, allActivities: Boolean):
+            Map<Int, Triple<String, String, List<TimetableActivity>>> {
         return listOfDays.map { weekday ->
             val calendar = calendarAt(year, week, weekday)
             val today = longDateFormat.format(calendar.time)
@@ -335,13 +350,84 @@ class AppDb(ctx: Context = App.instance,
                         .limit(1)
                         .parseOpt(IntParser)
             }
-            val activityList: List<ScheduledActivity> = if (timetableId == null) {
+            val activityList: List<TimetableActivity> = if (timetableId == null) {
                 listOf()
             } else {
                 getActivityList(timetableId)
             }
-            Pair(weekday, Pair(shortDateFormat.format(calendar.time), activityList))
+            val reportedActivities = getReportedActivities(today)
+            Pair(weekday, Triple(longDateFormat.format(calendar.time),
+                    shortDateFormat.format(calendar.time),
+                    mergeActivityLists(activityList, reportedActivities)))
         }.toMap()
+    }
+
+    private fun mergeActivityLists(
+            scheduledActivities: List<TimetableActivity>,
+            reportedActivities: List<TimetableActivity>): List<TimetableActivity>{
+        when {
+            scheduledActivities.isEmpty() -> return reportedActivities
+            reportedActivities.isEmpty() -> return scheduledActivities
+        }
+
+        val mergedActivities: MutableList<TimetableActivity> = mutableListOf()
+        val scheduledIterator = scheduledActivities.iterator()
+
+        var nextScheduled = scheduledIterator.next()
+
+        for (nextReported in reportedActivities) {
+            while (nextScheduled.endTime <= nextReported.startTime) {
+                mergedActivities.add(nextScheduled)
+                if (scheduledIterator.hasNext()) {
+                    nextScheduled = scheduledIterator.next()
+                } else {
+                    break
+                }
+            }
+            if (nextReported.replacesScheduled) {
+                while (nextScheduled.startTime < nextReported.endTime) {
+                    if (scheduledIterator.hasNext()) {
+                        nextScheduled = scheduledIterator.next()
+                    } else {
+                        break
+                    }
+                }
+            } else {
+                while (nextScheduled.startTime <= nextReported.startTime) {
+                    mergedActivities.add(nextScheduled)
+                    if (scheduledIterator.hasNext()) {
+                        nextScheduled = scheduledIterator.next()
+                    } else {
+                        break
+                    }
+                }
+            }
+            mergedActivities.add(nextReported)
+        }
+        mergedActivities.add(nextScheduled)
+        for (remainingScheduled in scheduledIterator) {
+            mergedActivities.add(remainingScheduled)
+        }
+        return mergedActivities.toList()
+    }
+
+    private fun getReportedActivities(today: String) = dbHelper.use {
+        select(ActivityTable.NAME,
+                ActivityTable.ID,
+                ActivityTable.TYPE,
+                ActivityTable.SPORT,
+                ActivityTable.GROUP,
+                ActivityTable.START,
+                ActivityTable.END,
+                ActivityTable.REPLACES)
+                .whereArgs("${ActivityTable.DATE} = {today}", "today" to today)
+                .orderBy(ActivityTable.START)
+                .parseList(rowParser { classId: Int, typeId: Int, sportId: Int, groupId: Int,
+                                       startTime: String, endTime: String,
+                                       replacesScheduled: Int ->
+                    TimetableActivity(classId, typeId, sportId, groupId, startTime, endTime, true,
+                            replacesScheduled == 1)
+                })
     }
 
     fun getTimetableEntry(year: Int, week: Int, weekday: Int) = dbHelper.use {
@@ -381,12 +467,12 @@ class AppDb(ctx: Context = App.instance,
                 .orderBy(ClassesTable.START)
                 .parseList(rowParser { classId: Int, typeId: Int, sportId: Int, groupId: Int,
                                        startTime: String, endTime: String ->
-                    ScheduledActivity(
-                            classId, typeId, sportId, groupId, startTime, endTime)
+                    TimetableActivity(
+                            classId, typeId, sportId, groupId, startTime, endTime, false, false)
                 })
     }
 
-    fun ongoingActivity(): ScheduledActivity? {
+    fun ongoingActivity(): TimetableActivity? {
         val now = Calendar.getInstance(Locale("sv", "SE"))
         val nowTime = timeFormat.format(now.time)
         val timetable = getTimetableEntry(now.get(Calendar.YEAR), now.get(Calendar.WEEK_OF_YEAR),
@@ -403,6 +489,21 @@ class AppDb(ctx: Context = App.instance,
         }
     }
 
+    fun getParticipants(activityId: Int): List<Int> = dbHelper.use {
+        select(ActivityParticipantsTable.NAME,
+                ActivityParticipantsTable.MEMBER)
+                .whereArgs("${ActivityParticipantsTable.ACTIVITY} = {activityId}",
+                        "activityId" to activityId).parseList(IntParser)
+    }
+
+    fun getLeaders(activityId: Int): List<Int> = dbHelper.use {
+        select(ActivityParticipantsTable.NAME,
+                ActivityParticipantsTable.MEMBER)
+                .whereArgs("${ActivityParticipantsTable.ACTIVITY} = {activityId} AND " +
+                        "${ActivityParticipantsTable.IS_LEADER} = 1",
+                        "activityId" to activityId).parseList(IntParser)
+    }
+
     fun newTimetable(weekday: Int, fromDate: String, toDate: String): Int {
         val nextId = nextFreeId(TimetableTable.NAME, TimetableTable.ID)
         dbHelper.use {
@@ -415,7 +516,7 @@ class AppDb(ctx: Context = App.instance,
         return nextId
     }
 
-    fun newClass(activity: ScheduledActivity): Int {
+    fun newClass(activity: TimetableActivity): Int {
         val nextId = nextFreeId(ClassesTable.NAME, ClassesTable.ID)
         dbHelper.use {
             insert(ClassesTable.NAME,
@@ -429,7 +530,7 @@ class AppDb(ctx: Context = App.instance,
         return nextId
     }
 
-    fun updateClass(activity: ScheduledActivity) = dbHelper.use {
+    fun updateClass(activity: TimetableActivity) = dbHelper.use {
         update(ClassesTable.NAME,
                 ClassesTable.TYPE to activity.type,
                 ClassesTable.SPORT to activity.sport,
@@ -465,6 +566,61 @@ class AppDb(ctx: Context = App.instance,
                         "${TimetableJunctionTable.CLASS} = {classId}",
                 "timetableId" to timetableId,
                 "classId" to classId)
+    }
+
+    fun addActivity(typeId: Int,
+                    sportId: Int,
+                    groupId: Int,
+                    date: String,
+                    startTime: String,
+                    endTime: String,
+                    replacesScheduled: Boolean): Int {
+        val activityId = nextFreeId(ActivityTable.NAME, ActivityTable.ID)
+        dbHelper.use {
+            insert(ActivityTable.NAME,
+                    ActivityTable.ID to activityId,
+                    ActivityTable.TYPE to typeId,
+                    ActivityTable.SPORT to sportId,
+                    ActivityTable.GROUP to groupId,
+                    ActivityTable.DATE to date,
+                    ActivityTable.START to startTime,
+                    ActivityTable.END to endTime,
+                    ActivityTable.REPLACES to if (replacesScheduled) { 1 } else { 0 })
+        }
+        return activityId
+    }
+
+    fun addParticipantsToActivity(activityId: Int, participants: Set<Int>, leaders: Set<Int>) =
+            dbHelper.use {
+                var nextId = nextFreeId(ActivityParticipantsTable.NAME,
+                        ActivityParticipantsTable.ID)
+                for (memberId in participants union leaders) {
+                    val isLeader = if (memberId in leaders) { 1 } else { 0 }
+                    insert(ActivityParticipantsTable.NAME,
+                            ActivityParticipantsTable.ID to nextId,
+                            ActivityParticipantsTable.ACTIVITY to activityId,
+                            ActivityParticipantsTable.MEMBER to memberId,
+                            ActivityParticipantsTable.IS_LEADER to isLeader)
+                    nextId += 1
+                }
+            }
+
+    fun removeParticipantsFromActivity(activityId: Int,
+                                       participants: Set<Int>,
+                                       leaders: Set<Int>) = dbHelper.use {
+        for (memberId in leaders.minus(participants)) {
+            update(ActivityParticipantsTable.NAME,
+                    ActivityParticipantsTable.IS_LEADER to 0)
+                    .whereArgs("${ActivityParticipantsTable.ACTIVITY}={activityId} AND " +
+                            "${ActivityParticipantsTable.MEMBER}={memberId}",
+                            "activityId" to activityId, "memberId" to memberId).exec()
+        }
+        for (memberId in participants) {
+            delete(ActivityParticipantsTable.NAME,
+                    "${ActivityParticipantsTable.ACTIVITY}={activityId} AND " +
+                            "${ActivityParticipantsTable.MEMBER}={memberId}",
+                    "activityId" to activityId, "memberId" to memberId)
+        }
     }
 
     // Consider splitting into table-specific functions with validation

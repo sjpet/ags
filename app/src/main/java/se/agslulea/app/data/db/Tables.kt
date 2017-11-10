@@ -15,6 +15,7 @@ object ActivityTable {
     val DATE = "Date"
     val START = "StartTime"
     val END = "EndTime"
+    val REPLACES = "ReplacesScheduled"
 }
 
 object ActivityTypeTable {
@@ -22,6 +23,7 @@ object ActivityTypeTable {
     val ID ="_id"
     val TYPE = "Type"
     val SHORTHAND = "Shorthand"
+    val COLOUR = "Colour"
     val IS_ACTIVE = "IsActive"
 }
 
@@ -116,4 +118,11 @@ object ClassesTable {
     val GROUP = "GroupId"
     val START = "StartTime"
     val END = "EndTime"
+}
+
+object ColourTable {
+    val NAME = "Colours"
+    val ID = "_id"
+    val COLOUR = "Colour"
+    val VALUE = "Value"
 }

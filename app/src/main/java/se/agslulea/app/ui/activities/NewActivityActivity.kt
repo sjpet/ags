@@ -5,11 +5,12 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.CheckBox
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 
 import se.agslulea.app.R
-import se.agslulea.app.classes.ScheduledActivity
+import se.agslulea.app.classes.TimetableActivity
 import se.agslulea.app.data.db.ActivityTypeTable
 import se.agslulea.app.data.db.AppDb
 import se.agslulea.app.data.db.GroupTable
@@ -34,10 +35,11 @@ class NewActivityActivity : AppCompatActivity() {
         val startTimeEditText = findViewById(R.id.new_activity_start_time_edit_text) as EditText
         val endTimeEditText = findViewById(R.id.new_activity_end_time_edit_text) as EditText
         val proceedButton = findViewById(R.id.proceed_button) as Button
+        val replacesCheckBox = findViewById(R.id.replaces_check_box) as CheckBox
 
         dateEditText.setText(today)
 
-        val ongoingActivity: ScheduledActivity? = db.ongoingActivity()
+        val ongoingActivity: TimetableActivity? = db.ongoingActivity()
         val preselectedType: Int
         val preselectedSport: Int
         val preselectedGroup: Int
@@ -72,18 +74,23 @@ class NewActivityActivity : AppCompatActivity() {
             val date = dateEditText.text.toString()
             val startTime = startTimeEditText.text.toString()
             val endTime = endTimeEditText.text.toString()
+            val replacesScheduled = replacesCheckBox.isChecked
 
             when {
                 !isValidDate(date) -> toast(R.string.invalid_date)
                 !isValidTime(startTime) -> toast(R.string.invalid_start_time)
                 !isValidTime(endTime) || endTime <= startTime -> toast(R.string.invalid_end_time)
-                else -> startActivity<RollCallActivity>(
-                        "type" to type,
-                        "sport" to sport,
-                        "group" to group,
-                        "date" to date,
-                        "startTime" to startTime,
-                        "endTime" to endTime)
+                else -> {
+                    startActivity<RollCallActivity>(
+                            "type" to type,
+                            "sport" to sport,
+                            "group" to group,
+                            "date" to date,
+                            "startTime" to startTime,
+                            "endTime" to endTime,
+                            "replacesScheduled" to replacesScheduled)
+                    finish()
+                }
             }
         }
     }

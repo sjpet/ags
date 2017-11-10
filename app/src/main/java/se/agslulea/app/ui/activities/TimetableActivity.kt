@@ -10,7 +10,7 @@ import android.widget.TextView
 import org.jetbrains.anko.startActivity
 
 import se.agslulea.app.R
-import se.agslulea.app.classes.ScheduledActivity
+import se.agslulea.app.classes.TimetableActivity
 import se.agslulea.app.data.db.AppDb
 import se.agslulea.app.helpers.flatActivityList
 import se.agslulea.app.helpers.layoutWeight
@@ -31,12 +31,13 @@ class TimetableActivity : AppCompatActivity() {
 
     private var year: Int = 2000
     private var week: Int = 1
+    private var adminLevel: Int = 0
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timetable)
 
-        val adminLevel = intent.getIntExtra("adminLevel", 0)
+        adminLevel = intent.getIntExtra("adminLevel", 0)
 
         val now = Calendar.getInstance(Locale("sv", "SE"))
         year = now.get(Calendar.YEAR)
@@ -127,28 +128,25 @@ class TimetableActivity : AppCompatActivity() {
 
     private fun drawTimetable() {
         clearTimetable()
-        populateTimetable(db.getTimetable(year, week))
+        populateTimetable(db.getTimetable(year, week, adminLevel == 0))
     }
 
     private fun clearTimetable() = strips.map { (_, strip) -> strip.removeAllViews() }
 
-    private fun populateTimetable(timetable: Map<Int, Pair<String, List<ScheduledActivity>>>) {
+    private fun populateTimetable(timetable: Map<Int, Triple<String, String, List<TimetableActivity>>>) {
         val (earliestStart, latestFinish) = timeRange(flatActivityList(timetable))
 
         listOfDays.map { weekday ->
-            val (dateString, activityList) = timetable[weekday]!!
+            val (fullDate, shortDate, activityList) = timetable[weekday]!!
 
-            dateLabels[weekday]?.text = dateString
+            dateLabels[weekday]?.text = shortDate
             
             var currentTime = earliestStart
-            activityList.map { activity: ScheduledActivity ->
+            activityList.map { activity: TimetableActivity ->
                 if (activity.startTime > earliestStart) {
                     addBlank(weekday, layoutWeight(currentTime, activity.startTime))
                 }
-                addActivity(weekday,
-                        db.activityLabel(activity.type, activity.sport, activity.group),
-                        activity.startTime,
-                        activity.endTime)
+                addActivity(weekday, activity, fullDate)
                 currentTime = activity.endTime
             }
             if (currentTime < latestFinish) {
@@ -166,29 +164,49 @@ class TimetableActivity : AppCompatActivity() {
 
     private fun addActivity(
             weekday: Int,
-            label: String,
-            startTime: String,
-            endTime: String) {
+            activity: TimetableActivity,
+            date: String) {
 
-        val activity = layoutInflater.inflate(R.layout.timetable_block_template, strips[weekday],
+        val activitySlot = layoutInflater.inflate(R.layout.timetable_block_template, strips[weekday],
             false) as LinearLayout
 
-        val params = activity.layoutParams as LinearLayout.LayoutParams
-        params.weight = layoutWeight(startTime, endTime)
-        activity.layoutParams = params
+        val params = activitySlot.layoutParams as LinearLayout.LayoutParams
+        params.weight = layoutWeight(activity.startTime, activity.endTime)
+        activitySlot.layoutParams = params
 
-        val startTimeText = activity.findViewById(R.id.block_start_time) as TextView
-        val endTimeText = activity.findViewById(R.id.block_end_time) as TextView
-        val sportText = activity.findViewById(R.id.block_label) as TextView
+        val startTimeText = activitySlot.findViewById(R.id.block_start_time) as TextView
+        val endTimeText = activitySlot.findViewById(R.id.block_end_time) as TextView
+        val sportText = activitySlot.findViewById(R.id.block_label) as TextView
 
-        startTimeText.text = startTime
-        endTimeText.text = endTime
-        sportText.text = label
+        startTimeText.text = activity.startTime
+        endTimeText.text = activity.endTime
+        sportText.text = db.activityLabel(activity.type, activity.sport, activity.group)
 
-        strips[weekday]?.addView(activity)
+        activitySlot.setOnClickListener{
+            if (activity.isReported) {
+                startActivity<RollCallActivity>(
+                        "type" to activity.type,
+                        "sport" to activity.sport,
+                        "group" to activity.group,
+                        "date" to date,
+                        "startTime" to activity.startTime,
+                        "endTime" to activity.endTime,
+                        "replacesScheduled" to activity.replacesScheduled,
+                        "activityId" to activity.id)
+            } else {
+                startActivity<RollCallActivity>(
+                        "type" to activity.type,
+                        "sport" to activity.sport,
+                        "group" to activity.group,
+                        "date" to date,
+                        "startTime" to activity.startTime,
+                        "endTime" to activity.endTime,
+                        "replacesScheduled" to true)
+            }
+        }
 
+        strips[weekday]?.addView(activitySlot)
         strips[weekday]?.invalidate()
-
     }
 }
 

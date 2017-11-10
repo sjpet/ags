@@ -39,6 +39,18 @@ class RollCallActivity : AppCompatActivity() {
         val date = intent.getStringExtra("date")
         val startTime = intent.getStringExtra("startTime")
         val endTime = intent.getStringExtra("endTime")
+        val replacesScheduled = intent.getBooleanExtra("replacesScheduled", false)
+        val existingActivityId = intent.getIntExtra("activityId", -1)
+
+        val (existingParticipants, existingLeaders) = if (existingActivityId > -1) {
+            Pair(db.getParticipants(existingActivityId).toSet(),
+                 db.getLeaders(existingActivityId).toSet())
+        } else {
+            Pair(setOf(), setOf())
+        }
+
+        selectedMembers.addAll(existingParticipants)
+        selectedLeaders.addAll(existingLeaders)
 
         title = getString(R.string.roll_call_title_template).format(date, startTime, endTime,
                 makeTitle(db.getActivityTypeName(type),
@@ -75,18 +87,18 @@ class RollCallActivity : AppCompatActivity() {
         })
 
         saveButton.setOnClickListener {
-            /*val baselineSelected = members.filter {
-                which in it[MemberMetaTable.GROUPS] as List<Int>
+            val activityId = if (existingActivityId == -1) {
+                db.addActivity(type, sport, group, date, startTime, endTime, replacesScheduled)
+            } else {
+                existingActivityId
             }
-                    .map { it[MemberTable.ID] as Int }.toSet()
-            baselineSelected.filterNot { it in selectedMembers }.map {
-                db.removeMemberFromGroup(it, which)
-            }
-            selectedMembers.filterNot { it in baselineSelected }.map {
-                db.addMemberToGroup(it, which)
-            }*/
-
-            //finish()
+            db.removeParticipantsFromActivity(activityId,
+                    existingParticipants.minus(selectedMembers),
+                    existingLeaders.minus(selectedLeaders))
+            db.addParticipantsToActivity(activityId,
+                    selectedMembers.minus(existingParticipants),
+                    selectedLeaders.minus(existingLeaders))
+            finish()
         }
     }
 
@@ -138,7 +150,6 @@ class RollCallActivity : AppCompatActivity() {
                     }
                     updateCounter(rollCallCounter, ctx.getString(R.string.number_picked),
                             selectedMembers, selectedLeaders)
-                    ctx.toast(selectedMembers.toString())
                 }
 
                 holder.leaderCheckBox.setOnClickListener { v ->
@@ -151,7 +162,6 @@ class RollCallActivity : AppCompatActivity() {
                     }
                     updateCounter(rollCallCounter, ctx.getString(R.string.number_picked),
                             selectedMembers, selectedLeaders)
-                    ctx.toast(selectedLeaders.toString())
                 }
 
             } else {

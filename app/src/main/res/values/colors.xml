@@ -9,4 +9,9 @@
     <color name="lightestShade">#E9E9E9</color>
     <color name="lightShade">#C7C7C7</color>
     <color name="greenShade">#80B39E</color>
+    <color name="redShade">#F0BFB4</color>
+    <color name="blueShade">#ADC7D0</color>
+    <color name="yellowShade">#E9E59C</color>
+    <color name="magentaShade">#C9ADD0</color>
+    <color name="cyanShade">#C6F0DD</color>
 </resources>

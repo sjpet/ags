@@ -10,10 +10,17 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
         DbHelper.DB_VERSION) {
 
     private val genericName = ctx.applicationContext.getString(R.string.generic_name)
+    private val colours = listOf(
+            Triple(0, "green", 0xFF80B39E),
+            Triple(1, "cyan", 0xFFC6F0DD),
+            Triple(2, "blue", 0xFFADC7D0),
+            Triple(3, "magenta", 0xFFC9ADD0),
+            Triple(4, "red", 0xFFF0BFB4),
+            Triple(5, "yellow", 0xFFE9E59C))
 
     companion object {
         val DB_NAME = "ags.db"
-        val DB_VERSION = 8
+        val DB_VERSION = 11
         val instance by lazy { DbHelper() }
     }
 
@@ -28,14 +35,16 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
                 ActivityTable.TYPE to INTEGER,
                 ActivityTable.SPORT to INTEGER,
                 ActivityTable.GROUP to INTEGER,
-                ActivityTable.DATE to TEXT, //
+                ActivityTable.DATE to TEXT,
                 ActivityTable.START to TEXT,
-                ActivityTable.END to TEXT)
+                ActivityTable.END to TEXT,
+                ActivityTable.REPLACES to INTEGER)
 
         db.createTable(ActivityTypeTable.NAME, true,
                 ActivityTypeTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,
                 ActivityTypeTable.TYPE to TEXT + UNIQUE,
                 ActivityTypeTable.SHORTHAND to TEXT,
+                ActivityTypeTable.COLOUR to INTEGER,
                 ActivityTypeTable.IS_ACTIVE to INTEGER)
 
         db.createTable(ActivityParticipantsTable.NAME, true,
@@ -108,11 +117,21 @@ class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHel
                 TimetableJunctionTable.TIMETABLE to INTEGER,
                 TimetableJunctionTable.CLASS to INTEGER)
 
+        db.createTable(ColourTable.NAME, true,
+                ColourTable.ID to INTEGER + PRIMARY_KEY + UNIQUE,
+                ColourTable.COLOUR to TEXT,
+                ColourTable.VALUE to INTEGER)
+        colours.map {
+            db.insert(ColourTable.NAME, ColourTable.ID to it.first,
+                    ColourTable.COLOUR to it.second, ColourTable.VALUE to it.third)
+        }
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
 
         db.dropTable(ActivityTypeTable.NAME, true)
+        //db.dropTable(ActivityTable.NAME, true)
         onCreate(db)
         /* db.dropTable(PasswordsTable.NAME, true)
         db.dropTable(ActivityTable.NAME, true)

@@ -62,6 +62,7 @@
     <string name="row_deactivate">Inaktivera</string>
     <string name="row_activate">Aktivera</string>
     <string name="row_add">Lägg till</string>
+    <string name="activity_colour">Visningsfärg</string>
 
     <!-- Strings related to the member list -->
     <string name="list_members_group">Grupp:</string>
@@ -125,6 +126,7 @@
     <string name="save_roll_call">Spara närvarorapport</string>
     <string name="present_slash_leader">Närv./Ledare</string>
     <string name="number_picked">%1$d vald%2$s, varav %3$d ledare</string>
+    <string name="replaces_scheduled">Ersätter schemalagda aktiviteter</string>
 
 
 </resources>
