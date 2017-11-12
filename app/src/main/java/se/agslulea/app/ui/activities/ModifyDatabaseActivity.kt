@@ -2,6 +2,7 @@ package se.agslulea.app.ui.activities
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import org.jetbrains.anko.startActivity
 
@@ -39,6 +40,14 @@ class ModifyDatabaseActivity : AppCompatActivity() {
         activity_types_button.setOnClickListener {
             startActivity<ModifyTableActivity>("table" to ActivityTypeTable.NAME,
                     "adminLevel" to adminLevel)
+        }
+
+        if (adminLevel == 2) {
+            val exportButton = findViewById(R.id.export_db_button) as Button
+            val importButton = findViewById(R.id.import_db_button) as Button
+
+            exportButton.visibility = View.VISIBLE
+            importButton.visibility = View.VISIBLE
         }
     }
 }

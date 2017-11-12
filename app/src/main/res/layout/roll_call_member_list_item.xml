@@ -36,4 +36,18 @@
         android:layout_marginLeft="@dimen/margin"
         android:gravity="center_vertical" />
 
+    <TextView
+        android:id="@+id/roll_call_member_list_fees"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/margin"
+        android:gravity="center_vertical" />
+
+    <TextView
+        android:id="@+id/roll_call_member_list_signed"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/margin"
+        android:gravity="center_vertical" />
+
 </LinearLayout>

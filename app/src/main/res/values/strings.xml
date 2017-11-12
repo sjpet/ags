@@ -63,6 +63,8 @@
     <string name="row_activate">Aktivera</string>
     <string name="row_add">Lägg till</string>
     <string name="activity_colour">Visningsfärg</string>
+    <string name="import_db">Importera</string>
+    <string name="export_db">Exportera</string>
 
     <!-- Strings related to the member list -->
     <string name="list_members_group">Grupp:</string>
@@ -127,6 +129,8 @@
     <string name="present_slash_leader">Närv./Ledare</string>
     <string name="number_picked">%1$d vald%2$s, varav %3$d ledare</string>
     <string name="replaces_scheduled">Ersätter schemalagda aktiviteter</string>
+    <string name="modify_activity">Ändra detaljer</string>
+    <string name="modify_activity_title">Uppdatera aktivitet</string>
 
 
 </resources>

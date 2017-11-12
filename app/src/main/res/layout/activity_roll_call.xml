@@ -36,6 +36,13 @@
         android:layout_marginTop="@dimen/margin"/>
 
     <Button
+        android:id="@+id/modify_activity_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/modify_activity" />
+
+    <Button
         android:id="@+id/roll_call_save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

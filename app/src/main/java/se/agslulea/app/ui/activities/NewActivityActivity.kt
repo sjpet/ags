@@ -24,6 +24,15 @@ class NewActivityActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_activity)
 
+        val existingActivityId = intent.getIntExtra("activityId", -1)
+        val existingType = intent.getIntExtra("type", -1)
+        val existingSport = intent.getIntExtra("sport", -1)
+        val existingGroup = intent.getIntExtra("group", -1)
+        val existingDate = intent.getStringExtra("date")
+        val existingStartTime = intent.getStringExtra("startTime")
+        val existingEndTime = intent.getStringExtra("endTime")
+        val existingReplacesScheduled = intent.getBooleanExtra("replacesScheduled", false)
+
         val db = AppDb()
         val now = Calendar.getInstance()
         val today = longDateFormat.format(now.time)
@@ -43,19 +52,33 @@ class NewActivityActivity : AppCompatActivity() {
         val preselectedType: Int
         val preselectedSport: Int
         val preselectedGroup: Int
-        if (ongoingActivity == null) {
-            val nearestQuarter = getNearestQuarter()
-            preselectedType = 1
-            preselectedSport = 1
-            preselectedGroup = 1
-            startTimeEditText.setText(nearestQuarter)
-            endTimeEditText.setText(addTime(nearestQuarter, "01:00"))
-        } else {
-            preselectedType = ongoingActivity.type
-            preselectedSport = ongoingActivity.sport
-            preselectedGroup = ongoingActivity.group
-            startTimeEditText.setText(ongoingActivity.startTime)
-            endTimeEditText.setText(ongoingActivity.endTime)
+        when {
+            (existingActivityId > -1) -> {
+                preselectedType = existingType
+                preselectedSport = existingSport
+                preselectedGroup = existingGroup
+                startTimeEditText.setText(existingStartTime)
+                endTimeEditText.setText(existingEndTime)
+                dateEditText.setText(existingDate)
+                replacesCheckBox.isChecked = existingReplacesScheduled
+                proceedButton.text = getString(R.string.save_changes)
+                title = getString(R.string.modify_activity_title)
+            }
+            (ongoingActivity == null) -> {
+                val nearestQuarter = getNearestQuarter()
+                preselectedType = 1
+                preselectedSport = 1
+                preselectedGroup = 1
+                startTimeEditText.setText(nearestQuarter)
+                endTimeEditText.setText(addTime(nearestQuarter, "01:00"))
+            }
+            else -> {
+                preselectedType = ongoingActivity.type
+                preselectedSport = ongoingActivity.sport
+                preselectedGroup = ongoingActivity.group
+                startTimeEditText.setText(ongoingActivity.startTime)
+                endTimeEditText.setText(ongoingActivity.endTime)
+            }
         }
 
         setSpinnerAdapter(this, typeSpinner, db.getActivityTypeNames(),
@@ -80,7 +103,7 @@ class NewActivityActivity : AppCompatActivity() {
                 !isValidDate(date) -> toast(R.string.invalid_date)
                 !isValidTime(startTime) -> toast(R.string.invalid_start_time)
                 !isValidTime(endTime) || endTime <= startTime -> toast(R.string.invalid_end_time)
-                else -> {
+                (existingActivityId < 0) -> {
                     startActivity<RollCallActivity>(
                             "type" to type,
                             "sport" to sport,
@@ -89,6 +112,11 @@ class NewActivityActivity : AppCompatActivity() {
                             "startTime" to startTime,
                             "endTime" to endTime,
                             "replacesScheduled" to replacesScheduled)
+                    finish()
+                }
+                else -> {
+                    db.updateActivity(existingActivityId, type, sport, group,
+                            date, startTime, endTime, replacesScheduled)
                     finish()
                 }
             }

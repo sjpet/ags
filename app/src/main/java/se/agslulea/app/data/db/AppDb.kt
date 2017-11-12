@@ -143,6 +143,35 @@ class AppDb(ctx: Context = App.instance,
                 .parseSingle(StringParser)
     }
 
+    fun getActivityTypeColour(typeId: Int) = dbHelper.use {
+        select(ColourTable.NAME, ColourTable.VALUE)
+                .whereArgs("${ColourTable.ID} = (SELECT ${ActivityTypeTable.COLOUR} " +
+                        "FROM ${ActivityTypeTable.NAME} WHERE ${ActivityTypeTable.ID} = " +
+                        "{typeId})", "typeId" to typeId)
+                .parseSingle(IntParser)
+    }
+
+    fun getActivityDetails(activityId: Int) = dbHelper.use {
+        select(ActivityTable.NAME,
+                ActivityTable.TYPE,
+                ActivityTable.SPORT,
+                ActivityTable.GROUP,
+                ActivityTable.DATE,
+                ActivityTable.START,
+                ActivityTable.END,
+                ActivityTable.REPLACES).whereArgs("${ActivityTable.ID} = {activityId}",
+                "activityId" to activityId).parseSingle(rowParser{
+            a: Int, b: Int, c: Int, d: String, e: String, f: String, g: Int ->
+            mapOf(ActivityTable.TYPE to a,
+                    ActivityTable.SPORT to b,
+                    ActivityTable.GROUP to c,
+                    ActivityTable.DATE to d,
+                    ActivityTable.START to e,
+                    ActivityTable.END to f,
+                    ActivityTable.REPLACES to (g == 1))
+        })
+    }
+
     private fun nextFreeId(tableName: String, idColumn: String): Int {
         val maxId = dbHelper.use {
             select(tableName, idColumn)
@@ -334,7 +363,7 @@ class AppDb(ctx: Context = App.instance,
                 "today" to longDateFormat.format(now.time))
     }
 
-    fun getTimetable(year: Int, week: Int, allActivities: Boolean):
+    fun getTimetable(year: Int, week: Int):
             Map<Int, Triple<String, String, List<TimetableActivity>>> {
         return listOfDays.map { weekday ->
             val calendar = calendarAt(year, week, weekday)
@@ -485,7 +514,12 @@ class AppDb(ctx: Context = App.instance,
                 activity.startTime <= addTime(nowTime, "00:10") &&
                         addTime(activity.endTime, "00:10") >= nowTime
             }
-            activityList[-1]
+            val k = activityList.lastIndex
+            if (k == -1) {
+                null
+            } else {
+                activityList[k]
+            }
         }
     }
 
@@ -588,6 +622,25 @@ class AppDb(ctx: Context = App.instance,
                     ActivityTable.REPLACES to if (replacesScheduled) { 1 } else { 0 })
         }
         return activityId
+    }
+
+    fun updateActivity(activityId: Int,
+                       typeId: Int,
+                       sportId: Int,
+                       groupId: Int,
+                       date: String,
+                       startTime: String,
+                       endTime: String,
+                       replacesScheduled: Boolean) = dbHelper.use {
+        update(ActivityTable.NAME,
+                ActivityTable.TYPE to typeId,
+                ActivityTable.SPORT to sportId,
+                ActivityTable.GROUP to groupId,
+                ActivityTable.DATE to date,
+                ActivityTable.START to startTime,
+                ActivityTable.END to endTime,
+                ActivityTable.REPLACES to if (replacesScheduled) { 1 } else { 0 })
+                .whereArgs("${ActivityTable.ID} = {activityId}", "activityId" to activityId).exec()
     }
 
     fun addParticipantsToActivity(activityId: Int, participants: Set<Int>, leaders: Set<Int>) =

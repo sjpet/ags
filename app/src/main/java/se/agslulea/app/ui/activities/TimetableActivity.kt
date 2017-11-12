@@ -1,5 +1,6 @@
 package se.agslulea.app.ui.activities
 
+import android.graphics.drawable.ColorDrawable
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -128,7 +129,7 @@ class TimetableActivity : AppCompatActivity() {
 
     private fun drawTimetable() {
         clearTimetable()
-        populateTimetable(db.getTimetable(year, week, adminLevel == 0))
+        populateTimetable(db.getTimetable(year, week))
     }
 
     private fun clearTimetable() = strips.map { (_, strip) -> strip.removeAllViews() }
@@ -169,6 +170,8 @@ class TimetableActivity : AppCompatActivity() {
 
         val activitySlot = layoutInflater.inflate(R.layout.timetable_block_template, strips[weekday],
             false) as LinearLayout
+
+        activitySlot.background = ColorDrawable(db.getActivityTypeColour(activity.type))
 
         val params = activitySlot.layoutParams as LinearLayout.LayoutParams
         params.weight = layoutWeight(activity.startTime, activity.endTime)
