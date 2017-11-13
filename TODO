@@ -1,0 +1,14 @@
+* Visually indicate that an activity has been reported
+
+* Google Drive integration
+* Annotate classes (instructor, plan etc.)
+
+* Tile clashing activities side by side
+
+* Dynamically redraw add member activity layout to fit fees and group names
+* Support additional fee models
+  - Clip cards
+  - Max classes per some period
+* Multiple timetable styles
+  - By type, sport or group
+  - Priority list
