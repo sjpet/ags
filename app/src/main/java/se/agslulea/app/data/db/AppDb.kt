@@ -1,16 +1,23 @@
 package se.agslulea.app.data.db
 
 import android.content.Context
+import android.os.Environment
 import org.jetbrains.anko.db.*
 import se.agslulea.app.R
 import se.agslulea.app.classes.TimetableActivity
 import se.agslulea.app.helpers.*
 import se.agslulea.app.ui.App
 import java.util.*
+import java.io.File
+
+
 
 class AppDb(ctx: Context = App.instance,
             private val dbHelper: DbHelper = DbHelper.instance) {
 
+    private val exportName = "ags_export.db"
+    private val importName = "ags_import.db"
+    private val backupNameFormat = "ags_backup_%d.db"
     private val noAdaString = ctx.applicationContext.getString(R.string.no_ada)
 
     fun getPassword(level: Int) = dbHelper.use {
@@ -31,8 +38,7 @@ class AppDb(ctx: Context = App.instance,
 
     fun getColours() = dbHelper.use {
         select(ColourTable.NAME, ColourTable.ID, ColourTable.COLOUR, ColourTable.VALUE)
-                .parseList(rowParser {
-                    id: Int, colourName: String, colourValue: Int ->
+                .parseList(rowParser { id: Int, colourName: String, colourValue: Int ->
                     mapOf(ColourTable.ID to id, ColourTable.COLOUR to colourName,
                             ColourTable.VALUE to colourValue)
                 })
@@ -52,9 +58,9 @@ class AppDb(ctx: Context = App.instance,
     fun getGroupNames() = dbHelper.use {
         select(GroupTable.NAME, GroupTable.ID, GroupTable.GROUP)
                 .whereArgs("${GroupTable.IS_ACTIVE} = 1")
-                .parseList(rowParser {
-            id: Int, group: String -> mapOf(GroupTable.ID to id, GroupTable.GROUP to group)
-        }).sortedBy { x -> x[GroupTable.ID] as Int}
+                .parseList(rowParser { id: Int, group: String ->
+                    mapOf(GroupTable.ID to id, GroupTable.GROUP to group)
+                }).sortedBy { x -> x[GroupTable.ID] as Int }
     }
 
     fun getGroupName(groupId: Int) = dbHelper.use {
@@ -64,17 +70,17 @@ class AppDb(ctx: Context = App.instance,
 
     fun getSports() = dbHelper.use {
         select(SportTable.NAME, SportTable.SPORT, SportTable.SHORTHAND,
-                SportTable.IS_ACTIVE).parseList(rowParser {
-            a: String, b: String, c: Int -> listOf(a, b, c)
+                SportTable.IS_ACTIVE).parseList(rowParser { a: String, b: String, c: Int ->
+            listOf(a, b, c)
         })
     }
 
     fun getSportNames() = dbHelper.use {
         select(SportTable.NAME, SportTable.ID, SportTable.SPORT)
                 .whereArgs("${SportTable.IS_ACTIVE} = 1")
-                .parseList(rowParser {
-                    id: Int, sport: String -> mapOf(SportTable.ID to id, SportTable.SPORT to sport)
-                }).sortedBy { x -> x[SportTable.ID] as Int}
+                .parseList(rowParser { id: Int, sport: String ->
+                    mapOf(SportTable.ID to id, SportTable.SPORT to sport)
+                }).sortedBy { x -> x[SportTable.ID] as Int }
     }
 
     fun getSportShorthand(sportId: Int) = dbHelper.use {
@@ -84,8 +90,8 @@ class AppDb(ctx: Context = App.instance,
 
     fun getFees() = dbHelper.use {
         select(FeeTable.NAME, FeeTable.FEE, FeeTable.KEY, FeeTable.PERIOD,
-                FeeTable.IS_ACTIVE).parseList(rowParser {
-            a: String, b: String, c: String, d: Int -> listOf(a, b, c, d)
+                FeeTable.IS_ACTIVE).parseList(rowParser { a: String, b: String, c: String, d: Int ->
+            listOf(a, b, c, d)
         })
     }
 
@@ -100,14 +106,13 @@ class AppDb(ctx: Context = App.instance,
         }
         select(FeeTable.NAME, FeeTable.ID, FeeTable.FEE, FeeTable.PERIOD)
                 .whereArgs("${FeeTable.IS_ACTIVE} = 1")
-                .parseList(rowParser {
-            id: Int, fee: String, period: String ->
-            mapOf(FeeTable.ID to id, FeeTable.FEE to fee + when (period) {
-                "1" -> " " + year.toString()
-                "2" -> " " + semester
-                else -> ""
-            })
-        }).sortedBy { x -> x[FeeTable.ID] as Int}
+                .parseList(rowParser { id: Int, fee: String, period: String ->
+                    mapOf(FeeTable.ID to id, FeeTable.FEE to fee + when (period) {
+                        "1" -> " " + year.toString()
+                        "2" -> " " + semester
+                        else -> ""
+                    })
+                }).sortedBy { x -> x[FeeTable.ID] as Int }
     }
 
     fun memberHasPaidFee(memberId: Int, feeId: Int) = (dbHelper.use {
@@ -123,18 +128,17 @@ class AppDb(ctx: Context = App.instance,
 
     fun getActivityTypes() = dbHelper.use {
         select(ActivityTypeTable.NAME, ActivityTypeTable.TYPE, ActivityTypeTable.SHORTHAND,
-                ActivityTypeTable.COLOUR, ActivityTypeTable.IS_ACTIVE).parseList(rowParser {
-            a: String, b: String, c: Int, d :Int -> listOf(a, b, c, d)
+                ActivityTypeTable.COLOUR, ActivityTypeTable.IS_ACTIVE).parseList(rowParser { a: String, b: String, c: Int, d: Int ->
+            listOf(a, b, c, d)
         })
     }
 
     fun getActivityTypeNames() = dbHelper.use {
         select(ActivityTypeTable.NAME, ActivityTypeTable.ID, ActivityTypeTable.TYPE)
                 .whereArgs("${ActivityTypeTable.IS_ACTIVE} = 1")
-                .parseList(rowParser {
-                    id: Int, activityType: String ->
+                .parseList(rowParser { id: Int, activityType: String ->
                     mapOf(ActivityTypeTable.ID to id, ActivityTypeTable.TYPE to activityType)
-                }).sortedBy { x -> x[ActivityTypeTable.ID] as Int}
+                }).sortedBy { x -> x[ActivityTypeTable.ID] as Int }
     }
 
     fun getActivityTypeName(typeId: Int) = dbHelper.use {
@@ -160,8 +164,7 @@ class AppDb(ctx: Context = App.instance,
                 ActivityTable.START,
                 ActivityTable.END,
                 ActivityTable.REPLACES).whereArgs("${ActivityTable.ID} = {activityId}",
-                "activityId" to activityId).parseSingle(rowParser{
-            a: Int, b: Int, c: Int, d: String, e: String, f: String, g: Int ->
+                "activityId" to activityId).parseSingle(rowParser { a: Int, b: Int, c: Int, d: String, e: String, f: String, g: Int ->
             mapOf(ActivityTable.TYPE to a,
                     ActivityTable.SPORT to b,
                     ActivityTable.GROUP to c,
@@ -179,27 +182,32 @@ class AppDb(ctx: Context = App.instance,
                     .limit(1)
                     .parseOpt(IntParser)
         }
-        return if (maxId == null) { 0 } else { maxId + 1 }
+        return if (maxId == null) {
+            0
+        } else {
+            maxId + 1
+        }
     }
 
     fun memberInGroup(memberId: Int, groupId: Int) = (dbHelper.use {
         select(GroupMemberTable.NAME, GroupMemberTable.ID).whereArgs(
                 "${GroupMemberTable.GROUP}={groupId} AND ${GroupMemberTable.MEMBER}={memberId}",
-                "groupId" to groupId, "memberId" to memberId).parseOpt(IntParser) } != null)
+                "groupId" to groupId, "memberId" to memberId).parseOpt(IntParser)
+    } != null)
 
     private fun feesPaid(memberId: Int): String {
         val fees = dbHelper.use {
-            val feeNames = select(FeeTable.NAME, FeeTable.ID, FeeTable.KEY).parseList(rowParser {
-                a: Int, b: String -> Pair(a, b)
-            }).associateBy({it.first}, {it.second})
+            val feeNames = select(FeeTable.NAME, FeeTable.ID, FeeTable.KEY).parseList(rowParser { a: Int, b: String ->
+                Pair(a, b)
+            }).associateBy({ it.first }, { it.second })
             val now = Calendar.getInstance(Locale("sv", "SE"))
             select(PaidFeesTable.NAME, PaidFeesTable.FEE)
                     .whereArgs("${PaidFeesTable.MEMBER} = {memberId} AND " +
                             "${PaidFeesTable.VALID_UNTIL} >= {today}",
                             "memberId" to memberId,
                             "today" to longDateFormat.format(now.time))
-                    .parseList(rowParser{
-                        a: Int -> if (a in feeNames) {
+                    .parseList(rowParser { a: Int ->
+                        if (a in feeNames) {
                             feeNames[a]!!
                         } else {
                             "?"
@@ -223,15 +231,19 @@ class AppDb(ctx: Context = App.instance,
 
     fun getMemberList() = dbHelper.use {
         select(MemberTable.NAME, MemberTable.ID, MemberTable.FIRST_NAME, MemberTable.FAMILY_NAME,
-                MemberTable.PERSONAL_ID, MemberTable.SIGNED).parseList(rowParser {
-            a: Int, b: String, c: String, d: String, e: Int -> mapOf(
-                MemberTable.ID to a,
-                MemberMetaTable.FULL_NAME to b + " " + c,
-                MemberMetaTable.DATE_OF_BIRTH to (d.substring(0..3) + "-" + d.substring(4..5)
-                        + "-" + d.substring(6..7)),
-                MemberMetaTable.FEES_PAID to feesPaid(a),
-                MemberMetaTable.GROUPS to memberGroups(a),
-                MemberTable.SIGNED to if (e == 1) { "" } else { noAdaString })
+                MemberTable.PERSONAL_ID, MemberTable.SIGNED).parseList(rowParser { a: Int, b: String, c: String, d: String, e: Int ->
+            mapOf(
+                    MemberTable.ID to a,
+                    MemberMetaTable.FULL_NAME to b + " " + c,
+                    MemberMetaTable.DATE_OF_BIRTH to (d.substring(0..3) + "-" + d.substring(4..5)
+                            + "-" + d.substring(6..7)),
+                    MemberMetaTable.FEES_PAID to feesPaid(a),
+                    MemberMetaTable.GROUPS to memberGroups(a),
+                    MemberTable.SIGNED to if (e == 1) {
+                        ""
+                    } else {
+                        noAdaString
+                    })
         })
     }
 
@@ -244,8 +256,7 @@ class AppDb(ctx: Context = App.instance,
                 MemberTable.EMAIL,
                 MemberTable.PHONE,
                 MemberTable.SIGNED).whereArgs("${MemberTable.ID} = {memberId}",
-                "memberId" to memberId).parseSingle(rowParser{
-            a: String, b: String, c: String, d: String, e: String, f: String, g: Int ->
+                "memberId" to memberId).parseSingle(rowParser { a: String, b: String, c: String, d: String, e: String, f: String, g: Int ->
             mapOf(MemberTable.FIRST_NAME to a,
                     MemberTable.FAMILY_NAME to b,
                     MemberTable.PERSONAL_ID to c,
@@ -274,7 +285,11 @@ class AppDb(ctx: Context = App.instance,
                     MemberTable.GUARDIAN to guardian,
                     MemberTable.EMAIL to email,
                     MemberTable.PHONE to phone,
-                    MemberTable.SIGNED to if (signedAda) { 1 } else { 0 })
+                    MemberTable.SIGNED to if (signedAda) {
+                        1
+                    } else {
+                        0
+                    })
         }
         return nextId
     }
@@ -293,7 +308,11 @@ class AppDb(ctx: Context = App.instance,
                 MemberTable.GUARDIAN to guardian,
                 MemberTable.EMAIL to email,
                 MemberTable.PHONE to phone,
-                MemberTable.SIGNED to if (signedAda) { 1 } else { 0 })
+                MemberTable.SIGNED to if (signedAda) {
+                    1
+                } else {
+                    0
+                })
                 .whereArgs("${MemberTable.ID} = {memberId}", "memberId" to memberId).exec()
     }
 
@@ -313,7 +332,11 @@ class AppDb(ctx: Context = App.instance,
                 MemberTable.GUARDIAN to guardian,
                 MemberTable.EMAIL to email,
                 MemberTable.PHONE to phone,
-                MemberTable.SIGNED to if (signedAda) { 1 } else { 0 })
+                MemberTable.SIGNED to if (signedAda) {
+                    1
+                } else {
+                    0
+                })
                 .whereArgs("${MemberTable.ID} = {memberId}", "memberId" to memberId).exec()
     }
 
@@ -342,7 +365,11 @@ class AppDb(ctx: Context = App.instance,
                 val nextId = nextFreeId(PaidFeesTable.NAME, PaidFeesTable.ID)
                 val now = Calendar.getInstance(Locale("sv", "SE"))
                 val expiryDate = now.get(Calendar.YEAR).toString() +
-                        if (now.get(Calendar.MONTH) > 6) { "-12-31" } else { "-06-30" }
+                        if (now.get(Calendar.MONTH) > 6) {
+                            "-12-31"
+                        } else {
+                            "-06-30"
+                        }
                 insert(PaidFeesTable.NAME,
                         PaidFeesTable.ID to nextId,
                         PaidFeesTable.MEMBER to memberId,
@@ -393,7 +420,7 @@ class AppDb(ctx: Context = App.instance,
 
     private fun mergeActivityLists(
             scheduledActivities: List<TimetableActivity>,
-            reportedActivities: List<TimetableActivity>): List<TimetableActivity>{
+            reportedActivities: List<TimetableActivity>): List<TimetableActivity> {
         when {
             scheduledActivities.isEmpty() -> return reportedActivities
             reportedActivities.isEmpty() -> return scheduledActivities
@@ -509,8 +536,7 @@ class AppDb(ctx: Context = App.instance,
         return if (timetable == null) {
             null
         } else {
-            val activityList = getActivityList(timetable[TimetableTable.ID] as Int).filter {
-                activity ->
+            val activityList = getActivityList(timetable[TimetableTable.ID] as Int).filter { activity ->
                 activity.startTime <= addTime(nowTime, "00:10") &&
                         addTime(activity.endTime, "00:10") >= nowTime
             }
@@ -619,7 +645,11 @@ class AppDb(ctx: Context = App.instance,
                     ActivityTable.DATE to date,
                     ActivityTable.START to startTime,
                     ActivityTable.END to endTime,
-                    ActivityTable.REPLACES to if (replacesScheduled) { 1 } else { 0 })
+                    ActivityTable.REPLACES to if (replacesScheduled) {
+                        1
+                    } else {
+                        0
+                    })
         }
         return activityId
     }
@@ -639,7 +669,11 @@ class AppDb(ctx: Context = App.instance,
                 ActivityTable.DATE to date,
                 ActivityTable.START to startTime,
                 ActivityTable.END to endTime,
-                ActivityTable.REPLACES to if (replacesScheduled) { 1 } else { 0 })
+                ActivityTable.REPLACES to if (replacesScheduled) {
+                    1
+                } else {
+                    0
+                })
                 .whereArgs("${ActivityTable.ID} = {activityId}", "activityId" to activityId).exec()
     }
 
@@ -648,7 +682,11 @@ class AppDb(ctx: Context = App.instance,
                 var nextId = nextFreeId(ActivityParticipantsTable.NAME,
                         ActivityParticipantsTable.ID)
                 for (memberId in participants union leaders) {
-                    val isLeader = if (memberId in leaders) { 1 } else { 0 }
+                    val isLeader = if (memberId in leaders) {
+                        1
+                    } else {
+                        0
+                    }
                     insert(ActivityParticipantsTable.NAME,
                             ActivityParticipantsTable.ID to nextId,
                             ActivityParticipantsTable.ACTIVITY to activityId,
@@ -708,4 +746,51 @@ class AppDb(ctx: Context = App.instance,
             }
         }
     }
+
+    fun import(): Int {
+        val importPath = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).path + "/" + importName
+        val importedDb = File(importPath)
+        dbHelper.close()
+        val appDb = File(dbHelper.database_path)
+        return if (importedDb.exists()) {
+            backup()
+            importedDb.copyTo(appDb, true)
+            dbHelper.writableDatabase.close()
+            0
+        } else {
+            1
+        }
+    }
+
+    fun export(): Int {
+        val exportPath = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).path + "/" + exportName
+        val appDb = File(dbHelper.database_path)
+        val exportedDb = File(exportPath)
+        exportedDb.parentFile.mkdirs()
+        appDb.copyTo(exportedDb, true)
+        return 0
+    }
+
+    private fun backup() {
+        val backupIndex = nextBackupIndex()
+        val backupPath = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).path + "/" + backupNameFormat.format(backupIndex)
+        val appDb = File(dbHelper.database_path)
+        val backupDb = File(backupPath)
+        backupDb.parentFile.mkdirs()
+        appDb.copyTo(backupDb)
+    }
+
+    private fun nextBackupIndex(): Int {
+        val backupDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).path
+        var k = 0
+        while (File(backupDir + "/" + backupNameFormat.format(k)).exists()) {
+            k += 1
+        }
+        return k
+    }
+
 }

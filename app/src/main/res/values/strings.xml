@@ -17,6 +17,7 @@
     <string name="group">Grupp</string>
     <string name="sport">Idrott</string>
     <string name="activity_type">Aktivitetstyp</string>
+    <string name="stats_not_implemented">Ingen statistik att visa</string>
 
     <!-- Strings related to login -->
     <string name="password">Lösenord</string>
@@ -65,6 +66,11 @@
     <string name="activity_colour">Visningsfärg</string>
     <string name="import_db">Importera</string>
     <string name="export_db">Exportera</string>
+    <string name="imported">Databasen har importerats</string>
+    <string name="exported">Databasen har exporterats</string>
+    <string name="export_failed">Databasen kunde ej exporteras</string>
+    <string name="import_failed">Kunde ej importera databas</string>
+    <string name="import_failed_no_file">Kunde ej importera (ags_import.db hittades inte)</string>
 
     <!-- Strings related to the member list -->
     <string name="list_members_group">Grupp:</string>

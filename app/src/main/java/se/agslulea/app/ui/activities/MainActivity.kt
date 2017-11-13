@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         statsButton.setOnClickListener {
-            startActivity<MyActivity>()
+            startActivity<StatsActivity>()
         }
 
     }

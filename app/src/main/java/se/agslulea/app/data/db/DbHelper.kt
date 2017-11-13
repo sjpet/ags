@@ -9,6 +9,8 @@ import se.agslulea.app.ui.App
 class DbHelper(ctx: Context = App.instance) : ManagedSQLiteOpenHelper(ctx, DbHelper.DB_NAME, null,
         DbHelper.DB_VERSION) {
 
+    val database_path = ctx.getDatabasePath(DbHelper.DB_NAME).getPath();
+
     private val genericName = ctx.applicationContext.getString(R.string.generic_name)
     private val colours = listOf(
             Triple(0, "green", 0xFF80B39E),
