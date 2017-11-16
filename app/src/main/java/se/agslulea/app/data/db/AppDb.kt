@@ -231,7 +231,9 @@ class AppDb(ctx: Context = App.instance,
 
     fun getMemberList() = dbHelper.use {
         select(MemberTable.NAME, MemberTable.ID, MemberTable.FIRST_NAME, MemberTable.FAMILY_NAME,
-                MemberTable.PERSONAL_ID, MemberTable.SIGNED).parseList(rowParser { a: Int, b: String, c: String, d: String, e: Int ->
+                MemberTable.PERSONAL_ID, MemberTable.SIGNED)
+                .orderBy(MemberTable.FAMILY_NAME)
+                .parseList(rowParser { a: Int, b: String, c: String, d: String, e: Int ->
             mapOf(
                     MemberTable.ID to a,
                     MemberMetaTable.FULL_NAME to b + " " + c,

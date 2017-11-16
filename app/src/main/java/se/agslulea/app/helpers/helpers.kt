@@ -117,7 +117,8 @@ fun filterMemberList(members: List<Map<String, Any>>,
                 (member[MemberMetaTable.DATE_OF_BIRTH] as String)
                         .substring(0..3).toInt() in (fromYear..toYear)
             }
-            else -> searchQuery in (member[MemberMetaTable.FULL_NAME] as String) ||
+            else -> searchQuery.toLowerCase() in
+                    (member[MemberMetaTable.FULL_NAME] as String).toLowerCase() ||
                     searchQuery in (member[MemberMetaTable.DATE_OF_BIRTH] as String)
         }
     } else {
