@@ -101,7 +101,7 @@ class ListMembersActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRestart() {
+    override fun onResume() {
         super.onRestart()
         members = db.getMemberList()
         showMembers()

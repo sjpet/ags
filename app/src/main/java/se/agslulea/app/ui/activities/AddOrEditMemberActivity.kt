@@ -143,63 +143,64 @@ class AddOrEditMemberActivity : AppCompatActivity() {
                 allIsWell = false
             }
 
-            if (!allIsWell) { finish() }
+            if (allIsWell) {
 
-            if (memberId >= 0 || db.memberWithPersonalIdExists(personalId)) {
-                // Update editable entries
-                if (adminLevel < 2) {
-                    db.updateMember(memberId, firstName, familyName, guardian, email, phone,
-                            signedAda)
+                if (memberId >= 0 || db.memberWithPersonalIdExists(personalId)) {
+                    // Update editable entries
+                    if (adminLevel < 2) {
+                        db.updateMember(memberId, firstName, familyName, guardian, email, phone,
+                                signedAda)
+                    } else {
+                        db.superUpdateMember(memberId, firstName, familyName, personalId, guardian,
+                                email, phone, signedAda)
+                    }
+
+                    // Update groups
+                    groups.map { group ->
+                        val groupId = group[GroupTable.ID] as Int
+                        if (groupCheckBoxesMap[groupId]!!.isChecked) {
+                            db.addMemberToGroup(memberId, groupId)
+                        } else {
+                            db.removeMemberFromGroup(memberId, groupId)
+                        }
+                    }
+
+                    // Update fees
+                    fees.map { fee ->
+                        val feeId = fee[FeeTable.ID] as Int
+                        if (feeCheckBoxesMap[feeId]!!.isChecked) {
+                            db.payFee(memberId, feeId)
+                        } else {
+                            db.removeFee(memberId, feeId)
+                        }
+                    }
+
+                    finish()
                 } else {
-                    db.superUpdateMember(memberId, firstName, familyName, personalId, guardian,
-                            email, phone, signedAda)
-                }
+                    val newId = db.addNewMember(firstName, familyName, personalId, guardian, email,
+                            phone, signedAda)
 
-                // Update groups
-                groups.map { group ->
-                    val groupId = group[GroupTable.ID] as Int
-                    if (groupCheckBoxesMap[groupId]!!.isChecked) {
-                        db.addMemberToGroup(memberId, groupId)
-                    } else {
-                        db.removeMemberFromGroup(memberId, groupId)
+                    // Update groups
+                    groups.map { group ->
+                        val groupId = group[GroupTable.ID] as Int
+                        if (groupCheckBoxesMap[groupId]!!.isChecked) {
+                            db.addMemberToGroup(newId, groupId)
+                        } else {
+                            db.removeMemberFromGroup(newId, groupId)
+                        }
                     }
-                }
 
-                // Update fees
-                fees.map { fee ->
-                    val feeId = fee[FeeTable.ID] as Int
-                    if (feeCheckBoxesMap[feeId]!!.isChecked) {
-                        db.payFee(memberId, feeId)
-                    } else {
-                        db.removeFee(memberId, feeId)
+                    // Update fees
+                    fees.map { fee ->
+                        val feeId = fee[FeeTable.ID] as Int
+                        if (feeCheckBoxesMap[feeId]!!.isChecked) {
+                            db.payFee(newId, feeId)
+                        } else {
+                            db.removeFee(newId, feeId)
+                        }
                     }
+                    finish()
                 }
-
-                finish()
-            } else {
-                val newId = db.addNewMember(firstName, familyName, personalId, guardian, email,
-                        phone, signedAda)
-
-                // Update groups
-                groups.map { group ->
-                    val groupId = group[GroupTable.ID] as Int
-                    if (groupCheckBoxesMap[groupId]!!.isChecked) {
-                        db.addMemberToGroup(newId, groupId)
-                    } else {
-                        db.removeMemberFromGroup(newId, groupId)
-                    }
-                }
-
-                // Update fees
-                fees.map { fee ->
-                    val feeId = fee[FeeTable.ID] as Int
-                    if (feeCheckBoxesMap[feeId]!!.isChecked) {
-                        db.payFee(newId, feeId)
-                    } else {
-                        db.removeFee(newId, feeId)
-                    }
-                }
-                finish()
             }
         }
     }

@@ -269,6 +269,12 @@ class AppDb(ctx: Context = App.instance,
         })
     }
 
+    fun getLastMemberId() = dbHelper.use {
+        select(MemberTable.NAME, MemberTable.ID)
+                .orderBy(MemberTable.ID, SqlOrderDirection.DESC).limit(1).parseSingle(IntParser)
+    }
+
+
     fun addNewMember(
             firstName: String,
             familyName: String,

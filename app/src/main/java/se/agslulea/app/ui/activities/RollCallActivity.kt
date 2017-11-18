@@ -10,10 +10,7 @@ import android.widget.*
 import org.jetbrains.anko.startActivity
 
 import se.agslulea.app.R
-import se.agslulea.app.data.db.ActivityTable
-import se.agslulea.app.data.db.AppDb
-import se.agslulea.app.data.db.MemberMetaTable
-import se.agslulea.app.data.db.MemberTable
+import se.agslulea.app.data.db.*
 import se.agslulea.app.helpers.filterMemberList
 
 class RollCallActivity : AppCompatActivity() {
@@ -36,6 +33,8 @@ class RollCallActivity : AppCompatActivity() {
     private var startTime: String = ""
     private var endTime: String = ""
     private var replacesScheduled: Boolean = false
+
+    private var lastMember = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +63,7 @@ class RollCallActivity : AppCompatActivity() {
 
         memberList = findViewById(R.id.roll_call_member_list_view) as ListView
         val searchBar = findViewById(R.id.roll_call_search_bar) as SearchView
+        val newMemberButton = findViewById(R.id.add_new_member_button) as Button
         val saveButton = findViewById(R.id.roll_call_save_button) as Button
         rollCallCounter = findViewById(R.id.roll_call_counter) as TextView
 
@@ -87,6 +87,7 @@ class RollCallActivity : AppCompatActivity() {
                 selectedLeaders)
 
         members = db.getMemberList()
+        lastMember = db.getLastMemberId()
 
         showMembers()
 
@@ -106,6 +107,11 @@ class RollCallActivity : AppCompatActivity() {
             }
         })
 
+        newMemberButton.setOnClickListener {
+            startActivity<AddOrEditMemberActivity>("preSelectedGroup" to group,
+                    "adminLevel" to 0)
+        }
+
         saveButton.setOnClickListener {
             val activityId = if (existingActivityId == -1) {
                 db.addActivity(type, sport, group, date, startTime, endTime, replacesScheduled)
@@ -124,6 +130,17 @@ class RollCallActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        // Handle a new member added
+        members = db.getMemberList()
+        showMembers()
+        val newLastMember = db.getLastMemberId()
+        if (newLastMember != lastMember) {
+            selectedMembers.add(newLastMember)
+            lastMember = newLastMember
+        }
+
+        // Handle activity details changed
         if (existingActivityId > -1) {
             val existingActivity = db.getActivityDetails(existingActivityId)
             type = existingActivity[ActivityTable.TYPE] as Int
