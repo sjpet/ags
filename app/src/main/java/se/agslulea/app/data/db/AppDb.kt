@@ -437,6 +437,7 @@ class AppDb(ctx: Context = App.instance,
         val mergedActivities: MutableList<TimetableActivity> = mutableListOf()
         val scheduledIterator = scheduledActivities.iterator()
 
+        var moreScheduled = true
         var nextScheduled = scheduledIterator.next()
 
         for (nextReported in reportedActivities) {
@@ -445,6 +446,7 @@ class AppDb(ctx: Context = App.instance,
                 if (scheduledIterator.hasNext()) {
                     nextScheduled = scheduledIterator.next()
                 } else {
+                    moreScheduled = false
                     break
                 }
             }
@@ -453,6 +455,7 @@ class AppDb(ctx: Context = App.instance,
                     if (scheduledIterator.hasNext()) {
                         nextScheduled = scheduledIterator.next()
                     } else {
+                        moreScheduled = false
                         break
                     }
                 }
@@ -462,13 +465,14 @@ class AppDb(ctx: Context = App.instance,
                     if (scheduledIterator.hasNext()) {
                         nextScheduled = scheduledIterator.next()
                     } else {
+                        moreScheduled = false
                         break
                     }
                 }
             }
             mergedActivities.add(nextReported)
         }
-        mergedActivities.add(nextScheduled)
+        if (moreScheduled) { mergedActivities.add(nextScheduled) }
         for (remainingScheduled in scheduledIterator) {
             mergedActivities.add(remainingScheduled)
         }
@@ -799,6 +803,10 @@ class AppDb(ctx: Context = App.instance,
             k += 1
         }
         return k
+    }
+
+    fun memberStats(): HashMap<String, Int> {
+        return HashMap()
     }
 
 }
